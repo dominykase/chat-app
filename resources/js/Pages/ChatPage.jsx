@@ -1,7 +1,8 @@
 import { ChatContainer } from "@/Components/Chat/ChatContainer";
 import {Component, useEffect, useRef, useState} from "react";
 import {ChatRoomSelection} from "@/Components/Chat/ChatRoomSelection";
-import {CreateChatRoomView} from "@/Components/Chat/CreateChatRoomView";
+import {CreateChatRoomView} from "@/Components/Chat/ManageChatRooms/CreateChatRoomView";
+import {ManageChatRoomsComponent} from "@/Components/Chat/ManageChatRooms/ManageChatRoomsComponent";
 
 export default class ChatPage extends Component {
     constructor(props) {
@@ -10,12 +11,17 @@ export default class ChatPage extends Component {
         this.state = {
             chatRooms: [],
             createChatRoomView: false,
+            manageChatRooms: false,
             currentChatRoom: {id: 1}
         }
     }
 
     toggleCreateChatRoomView = (toggle) => {
         this.setState({createChatRoomView: toggle});
+    }
+
+    toggleManageChatRooms = (toggle) => {
+        this.setState({manageChatRooms: toggle});
     }
 
     getChatRooms = () => {
@@ -68,16 +74,25 @@ export default class ChatPage extends Component {
                     currentChatRoom={this.state.currentChatRoom}
                     setChatRoom={this.updateChatRoom.bind(this)}
                     toggleCreateChatRoomView={this.toggleCreateChatRoomView.bind(this)}
+                    toggleManageChatRooms={this.toggleManageChatRooms.bind(this)}
                 />
                 {
-                    this.state.createChatRoomView
+                    this.state.manageChatRooms
+                    ? <ManageChatRoomsComponent
+                            toggleCreateChatRoomView={this.toggleCreateChatRoomView.bind(this)}
+                            toggleManageChatRooms={this.toggleManageChatRooms.bind(this)}
+                            chatRooms={this.state.chatRooms}
+                        />
+                    : this.state.createChatRoomView
                         ? <CreateChatRoomView
                             toggleCreateChatRoomView={this.toggleCreateChatRoomView.bind(this)}
+                            toggleManageChatRooms={this.toggleManageChatRooms.bind(this)}
                         />
                         : <ChatContainer
                             chatRooms={this.state.chatRooms}
                             currentChatRoom={this.state.currentChatRoom}
                         />
+
                 }
             </div>
         );

@@ -6,9 +6,9 @@ export const ChatRoomSelection = (props) => {
         <div className="overflow-scroll w-1/6">
             <>
                 <div
-                    onClick={() => props.toggleCreateChatRoomView(true)}
+                    onClick={() => props.toggleManageChatRooms(true)}
                 >
-                    New chatroom
+                    Manage chat rooms
                 </div>
                 {
                     props.chatRooms &&

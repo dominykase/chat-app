@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('chat_rooms', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->boolean('is_private');
             $table->timestamps();
         });
     }
