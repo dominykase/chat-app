@@ -1,6 +1,6 @@
 import {useState} from "react";
 
-export const AddUserToChatRoom = () => {
+export const AddUserToChatRoom = (props) => {
     const [searchInputValue, setSearchInputValue] = useState("");
     const [foundUsers, setFoundUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -17,8 +17,25 @@ export const AddUserToChatRoom = () => {
             });
     }
 
+    const addUser = () => {
+        axios({
+            method: "post",
+            url: "http://localhost:8000/chat/room/" + props.room.id + "/user",
+            data: {
+                userId: selectedUser.id
+            }
+        })
+            .then((response) => {
+                console.log(response);
+            })
+    }
+
     const handleChange = (e) => {
         setSearchInputValue(e.target.value);
+
+        if (searchInputValue.length == 0) {
+            return;
+        }
 
         clearTimeout(timeout);
         timeout = setTimeout(() => {
@@ -39,6 +56,7 @@ export const AddUserToChatRoom = () => {
                     foundUsers.map((user) => {
                         return (
                             <div
+                                key={user.name + user.email}
                                 style={{
                                     backgroundColor: selectedUser === user ? "blue" : "white"
                                 }}
@@ -52,6 +70,12 @@ export const AddUserToChatRoom = () => {
                     })
                 }
             </div>
+            <button
+                className="px-4 rounded bg-amber-500"
+                onClick={addUser}
+            >
+                Add user
+            </button>
         </div>
     );
 }

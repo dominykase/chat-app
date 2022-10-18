@@ -8,7 +8,7 @@ export const ManageChatRoomsComponent = (props) => {
     const getRoomUsers = () => {
         axios({
             method: "get",
-            url: "http://localhost:8000/chat/room/" + editedRoom.id + "/users"
+            url: "http://localhost:8000/chat/room/" + editedRoom.id + "/user"
         })
             .then((response) => {
                 setEditedRoomUsers(response.data);
@@ -98,7 +98,7 @@ export const ManageChatRoomsComponent = (props) => {
             </div>
             <br/>
             <br/>
-            <AddUserToChatRoom />
+            <AddUserToChatRoom room={editedRoom}/>
         </div>
     );
 }

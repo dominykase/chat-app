@@ -13,15 +13,19 @@ class PrivateChatRoomLinker
 
         $this->stripNull($privateRoomIds);
 
-        User::where('id', $userId)
-            ->update([
-                'private_room_ids' => $privateRoomIds . $roomId . ","
-            ]);
+        if (!in_array($roomId, explode(",", $privateRoomIds)))
+        {
+            User::where('id', $userId)
+                ->update([
+                    'private_room_ids' => $privateRoomIds . $roomId . ","
+                ]);
+        }
     }
 
     public function hasUser($user, $chatRoom) : bool
     {
         $privateRoomIds = $user->private_room_ids;
+
         if ($privateRoomIds == null)
         {
             return false;

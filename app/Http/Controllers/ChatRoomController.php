@@ -14,9 +14,9 @@ class ChatRoomController extends Controller
     public function rooms(Request $request)
     {
         $returnedChatRooms = ChatRoom::where('is_private', 0)->get();
-        $privateRoomIdsString = User::where('id', Auth::id())->pluck('private_room_ids');
+        $privateRoomIdsString = User::where('id', Auth::id())->pluck('private_room_ids')[0];
         $privateRoomIdsArray = explode(",", $privateRoomIdsString);
-
+//        var_dump($privateRoomIdsArray);
         foreach($privateRoomIdsArray as $id)
         {
             if (strlen($id) > 0)
@@ -41,7 +41,6 @@ class ChatRoomController extends Controller
             $linker = new PrivateChatRoomLinker();
             $linker->link(Auth::id(), $chatRoom->id);
         }
-
 
         return $chatRoom;
     }
@@ -68,7 +67,23 @@ class ChatRoomController extends Controller
             $usersThatBelong = $allUsers;
         }
 
-
         return $usersThatBelong;
+    }
+
+    public function addUser(Request $request, $roomId)
+    {
+        $userId = $request->userId;
+        $chatRoom = ChatRoom::where('id', $roomId)->get()->first();
+
+        if ($chatRoom->is_private)
+        {
+            $linker = new PrivateChatRoomLinker();
+            $linker->link($userId, $roomId);
+            return "Added or already exists.";
+        }
+        else
+        {
+            return "Room is public, cannot add users";
+        }
     }
 }
