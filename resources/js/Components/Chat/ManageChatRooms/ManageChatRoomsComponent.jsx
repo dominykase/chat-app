@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import {AddUserToChatRoom} from "@/Components/Chat/ManageChatRooms/AddUserToChatRoom";
 
 export const ManageChatRoomsComponent = (props) => {
     const [editedRoom, setEditedRoom] = useState(props.chatRooms[0]);
@@ -95,6 +96,9 @@ export const ManageChatRoomsComponent = (props) => {
                     })
                 }
             </div>
+            <br/>
+            <br/>
+            <AddUserToChatRoom />
         </div>
     );
 }
