@@ -13,4 +13,9 @@ class BanScreener implements ScreenerInterface
             ->first()
             ->is_banned;
     }
+
+    public function message(): string
+    {
+        return "User is banned from this room.";
+    }
 }

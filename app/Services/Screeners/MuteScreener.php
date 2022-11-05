@@ -13,4 +13,9 @@ class MuteScreener implements ScreenerInterface
             ->first()
             ->is_muted;
     }
+
+    public function message(): string
+    {
+        return "User is muted in this room.";
+    }
 }

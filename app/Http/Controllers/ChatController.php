@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\Messages\MessageRepository;
+use App\Services\Messages\MessageService;
 use App\Services\Screeners\BanScreener;
 use App\Services\Screeners\MuteScreener;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\ChatMessage;
 use Illuminate\Support\Facades\Auth;
@@ -12,42 +15,35 @@ use App\Events\NewChatMessage;
 class ChatController extends Controller
 {
 
-    public function messages(Request $request, $roomId)
+    public function __construct(private MessageRepository $messageRepository)
     {
-        $banScreen = new BanScreener();
-        if ($banScreen->screen($roomId, Auth::id()))
-        {
-            return "User is banned from this room";
-        }
+    }
 
-        return ChatMessage::where('chat_room_id', $roomId)
-            ->with('user')
-            ->orderBy('created_at', 'DESC')
-            ->get();
+    public function messages(Request $request, $roomId): JsonResponse
+    {
+        $service = new MessageService($this->messageRepository, [
+            new BanScreener()
+        ]);
+
+        return response()->json(
+            $service->getMessages($roomId, Auth::id())
+        );
     }
 
     public function newMessage(Request $request, $roomId): string|ChatMessage
     {
-        $muteScreen = new MuteScreener();
-        if ($muteScreen->screen($roomId, Auth::id()))
+        $service = new MessageService($this->messageRepository, [
+            new MuteScreener(),
+            new BanScreener()
+        ]);
+
+        $message = $service->createMessage($roomId, Auth::id(), $request->message);
+
+        if ($message instanceof ChatMessage)
         {
-            return "User is muted in this room";
+            broadcast(new NewChatMessage($message))->toOthers();
         }
 
-        $banScreen = new BanScreener();
-        if ($banScreen->screen($roomId, Auth::id()))
-        {
-            return "User is banned from this room";
-        }
-
-        $newMessage = new ChatMessage();
-        $newMessage->user_id = Auth::id();
-        $newMessage->chat_room_id = $roomId;
-        $newMessage->message = $request->message;
-        $newMessage->save();
-
-        broadcast(new NewChatMessage($newMessage))->toOthers();
-
-        return $newMessage;
+        return $message;
     }
 }

@@ -1,118 +1,75 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\ChatRoom;
 use App\Models\RoomUserRelationship;
 use App\Models\User;
-use App\Services\PrivateChatRoomLinker;
+use App\Repositories\ChatRoom\ChatRoomRepository;
+use App\Services\ChatRooms\ChatRoomService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class ChatRoomController extends Controller
 {
-    public function rooms(Request $request): array
+    public function __construct(private ChatRoomRepository $chatRepository)
     {
-        $roomIds = RoomUserRelationship::where('user_id', Auth::id())
-            ->pluck('room_id')->toArray();
-        $rooms = ChatRoom::all()->toArray();
-
-        $filteredRooms = array_values(array_filter($rooms, function($room) use ($roomIds) {
-            return in_array($room['id'], $roomIds);
-        }));
-
-        // add virtual values to returned resources
-        $returnedRooms = [];
-        foreach($filteredRooms as $room)
-        {
-            $relationship = RoomUserRelationship::where('user_id', Auth::id())
-                ->where('room_id', $room['id'])->first();
-            $room['is_banned'] = $relationship->is_banned;
-            $room['is_muted'] = $relationship->is_muted;
-            $returnedRooms[] = $room;
-        }
-
-        return $returnedRooms;
     }
 
-    public function createChatRoom(Request $request): ChatRoom
+    public function rooms(Request $request): JsonResponse
     {
-        $chatRoom = new ChatRoom();
-        $chatRoom->name = $request->roomName;
-        $chatRoom->is_private = $request->private;
-        $chatRoom->save();
+        $service = new ChatRoomService($this->chatRepository);
 
-        if ($request->private)
-        {
-            RoomUserRelationship::create([
-                'room_id' => $chatRoom->id,
-                'user_id' => Auth::user()->id,
-                'is_muted' => 0,
-                'is_banned' => 0
-            ]);
-        } else
-        {
-            $users = User::all();
-            foreach($users as $user)
-            {
-                RoomUserRelationship::create([
-                    'room_id' => $chatRoom->id,
-                    'user_id' => $user->id,
-                    'is_muted' => 0,
-                    'is_banned' => 0
-                ]);
-            }
-        }
-
-        return $chatRoom;
+        return response()->json(
+            $service->getRooms(Auth::id())
+        );
     }
 
-    public function getUsers(Request $request, $roomId): array
+    public function createChatRoom(Request $request): JsonResponse
     {
-        $relationshipQuery = RoomUserRelationship::where('room_id', $roomId);
-        $userIds = $relationshipQuery->pluck('user_id')->toArray();
-        $allUsers = User::all()->toArray();
+        $service = new ChatRoomService($this->chatRepository);
 
-        $returnArray = [];
-        $returnArray['users'] = array_values(array_filter($allUsers, function($user) use ($userIds) {
-            return in_array($user['id'], $userIds);
-        }));
-        $returnArray['relationships'] = $relationshipQuery->get()->toArray();
-
-        return $returnArray;
+        return response()->json(
+            $service->createNewChatRoom(
+                $request->roomName,
+                $request->private,
+                Auth::id()
+            )
+        );
     }
 
-    public function addUser(Request $request, $roomId): string
+    public function getUsers(Request $request, int $roomId): JsonResponse
     {
-        $userId = $request->userId;
-        $chatRoom = ChatRoom::where('id', $roomId)->get()->first();
+        $service = new ChatRoomService($this->chatRepository);
 
-        if ($chatRoom->is_private)
-        {
-            RoomUserRelationship::create([
-                'room_id' => $chatRoom->id,
-                'user_id' => $userId,
-                'is_muted' => 0,
-                'is_banned' => 0
-            ]);
-            return "Added or already exists.";
-        }
-        else
-        {
-            return "Room is public, cannot add users";
-        }
+        return response()->json(
+            $service->getUsersByRoomId($roomId)
+        );
     }
 
-    public function updateUserStatus(Request $request, $roomId): RoomUserRelationship
+    public function addUser(Request $request, int $roomId): JsonResponse
     {
-        $relationship = RoomUserRelationship::where('user_id', $request->userId)
-            ->where('room_id', $roomId)->first();
-        $relationship->update([
-            'is_muted' => $request->mute ? 1 : 0,
-            'is_banned' => $request->ban ? 1 : 0
-        ]);
+        $service = new ChatRoomService($this->chatRepository);
 
-        return $relationship;
+        return response()->json(
+            $service->addUserToChatRoom($roomId, $request->userId)
+        );
+    }
+
+    public function updateUserStatus(Request $request, int $roomId): JsonResponse
+    {
+        $service = new ChatRoomService($this->chatRepository);
+
+        return response()->json(
+            $service->updateRoomUserStatus(
+                $roomId,
+                $request->userId,
+                $request->mute ? 1 : 0,
+                $request->ban ? 1 : 0
+            )
+        );
     }
 }
