@@ -12,16 +12,18 @@ export const ChatRoomSelection = (props) => {
                 </div>
                 {
                     props.chatRooms &&
-                    props.chatRooms.map((room) => {
-                        return (
-                            <ChatRoomBox
-                                key={room.id}
-                                chatRoom={room}
-                                selected={props.currentChatRoom.id == room.id ? true : false}
-                                setChatRoom={props.setChatRoom}
-                            />
-                        );
-                    })
+                    props.chatRooms.map((room) =>
+                        room.is_banned
+                            ? null
+                            : (
+                                <ChatRoomBox
+                                    key={room.id}
+                                    chatRoom={room}
+                                    selected={props.currentChatRoom.id == room.id ? true : false}
+                                    setChatRoom={props.setChatRoom}
+                                />
+                            )
+                    )
                 }
             </>
         </div>

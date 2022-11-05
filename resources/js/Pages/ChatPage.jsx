@@ -12,7 +12,7 @@ export default class ChatPage extends Component {
             chatRooms: [],
             createChatRoomView: false,
             manageChatRooms: false,
-            currentChatRoom: {id: 1}
+            currentChatRoom: {id: undefined}
         }
     }
 
@@ -30,9 +30,10 @@ export default class ChatPage extends Component {
             url: "http://localhost:8000/chat/rooms"
         })
             .then((response) => {
+                const displayedRooms = response.data.filter((room) => room.is_banned === 0);
                 this.setState({
                     chatRooms: response.data,
-                    currentChatRoom: response.data[0],
+                    currentChatRoom: displayedRooms[0],
                 })
             })
     }

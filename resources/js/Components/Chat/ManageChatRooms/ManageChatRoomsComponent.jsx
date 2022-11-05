@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
 import {AddUserToChatRoom} from "@/Components/Chat/ManageChatRooms/AddUserToChatRoom";
+import {UserCard} from "@/Components/Chat/ManageChatRooms/UserCard";
 
 export const ManageChatRoomsComponent = (props) => {
     const [editedRoom, setEditedRoom] = useState(props.chatRooms[0]);
-    const [editedRoomUsers, setEditedRoomUsers] = useState([]);
+    const [editedRoomUsers, setEditedRoomUsers] = useState({users: [], relationships: []});
 
     const getRoomUsers = () => {
         axios({
@@ -89,9 +90,16 @@ export const ManageChatRoomsComponent = (props) => {
                 <p><strong>Public/private:</strong> {editedRoom.is_private ? "Private" : "Public"}</p>
                 <p><strong>Users:</strong></p>
                 {
-                    editedRoomUsers.map((user) => {
+                    editedRoomUsers.users.map((user) => {
+                        const relationship = editedRoomUsers.relationships.filter((x) => x.user_id === user.id)[0];
                         return (
-                            <p key={user.email}>{user.name} {user.email}</p>
+                            <UserCard
+                                key={user.email + relationship.is_muted + relationship.is_banned}
+                                user={user}
+                                room={editedRoom}
+                                muted={relationship.is_muted}
+                                banned={relationship.is_banned}
+                            />
                         );
                     })
                 }

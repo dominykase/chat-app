@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChatRoom;
+use App\Models\RoomUserRelationship;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
@@ -45,6 +47,17 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        $publicRooms = ChatRoom::where('is_private', 0)->get();
+        foreach ($publicRooms as $room)
+        {
+            RoomUserRelationship::create([
+                'room_id' => $room->id,
+                'user_id' => $user->id,
+                'is_muted' => 0,
+                'is_banned' => 0
+            ]);
+        }
 
         event(new Registered($user));
 

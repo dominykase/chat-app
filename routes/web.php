@@ -39,10 +39,32 @@ Route::get('/chat', function () {
 
 Route::middleware('auth:sanctum')->get('/user/search', [UserController::class, 'search']);
 
-Route::middleware('auth:sanctum')->get('/chat/rooms', [ChatRoomController::class, 'rooms']);
-Route::middleware('auth:sanctum')->post('/chat/room/create', [ChatRoomController::class, 'createChatRoom']);
-Route::middleware('auth:sanctum')->get('/chat/room/{roomId}/user', [ChatRoomController::class, 'getUsers']);
-Route::middleware('auth:sanctum')->post('/chat/room/{roomId}/user', [ChatRoomController::class, 'addUser']);
+Route::middleware('auth:sanctum')->get(
+    '/chat/rooms',
+    [ChatRoomController::class, 'rooms']
+);
+Route::middleware('auth:sanctum')->post(
+    '/chat/room/create',
+    [ChatRoomController::class, 'createChatRoom']
+);
+Route::middleware('auth:sanctum')->get(
+    '/chat/room/{roomId}/user',
+    [ChatRoomController::class, 'getUsers']
+);
+Route::middleware('auth:sanctum')->post(
+    '/chat/room/{roomId}/user',
+    [ChatRoomController::class, 'addUser']
+);
+Route::middleware('auth:sanctum')->post(
+    '/chat/room/{roomId}/user/update',
+    [ChatRoomController::class, 'updateUserStatus']
+);
 
-Route::middleware('auth:sanctum')->get('/chat/room/{roomId}', [ChatController::class, 'messages']);
-Route::middleware('auth:sanctum')->post('/chat/rooms/{roomId}/message', [ChatController::class, 'newMessage']);
+Route::middleware('auth:sanctum')->get(
+    '/chat/room/{roomId}',
+    [ChatController::class, 'messages']
+);
+Route::middleware('auth:sanctum')->post(
+    '/chat/rooms/{roomId}/message',
+    [ChatController::class, 'newMessage']
+);

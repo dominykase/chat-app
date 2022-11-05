@@ -55,6 +55,7 @@ export const AddUserToChatRoom = (props) => {
                 {
                     foundUsers.map((user) => {
                         return (
+
                             <div
                                 key={user.name + user.email}
                                 style={{
@@ -66,6 +67,7 @@ export const AddUserToChatRoom = (props) => {
                             >
                                 {user.name} {user.email}
                             </div>
+
                         );
                     })
                 }
