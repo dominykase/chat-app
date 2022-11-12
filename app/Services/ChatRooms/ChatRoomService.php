@@ -7,10 +7,14 @@ namespace App\Services\ChatRooms;
 use App\Models\ChatRoom;
 use App\Models\RoomUserRelationship;
 use App\Repositories\ChatRoom\ChatRoomRepository;
+use Illuminate\Support\Facades\Auth;
 
 class ChatRoomService
 {
-    public function __construct(private ChatRoomRepository $repository)
+    public function __construct(
+        private ChatRoomRepository $repository,
+        private array $screens
+    )
     {
     }
 
@@ -30,13 +34,17 @@ class ChatRoomService
         // create user-room relationships
         if ($isPrivate)
         {
-            $this->repository->createRelationship($room->id, $userId);
+            $this->repository->createRelationship($room->id, $userId, 1);
         } else
         {
             $users = $this->repository->getAllUsers();
             foreach($users as $user)
             {
-                $this->repository->createRelationship($room->id, $user->id);
+                $this->repository->createRelationship(
+                    $room->id,
+                    $user->id,
+                    $user->id === $userId ? 1 : 0
+                );
             }
         }
 
@@ -59,13 +67,21 @@ class ChatRoomService
 
     public function addUserToChatRoom(int $roomId, int $userId): string
     {
-        $room = $this->repository->getChatRoomById();
+        foreach($this->screens as $screen)
+        {
+            if ($screen->screen($roomId, Auth::id()))
+            {
+                return $screen->message();
+            }
+        }
+
+        $room = $this->repository->getChatRoomById($roomId);
 
         if ($room->is_private)
         {
-            if ($this->repository->getSingleRelationship() === null)
+            if ($this->repository->getSingleRelationship($roomId, $userId) === null)
             {
-                $this->repository->createRelationship($roomId, $userId);
+                $this->repository->createRelationship($roomId, $userId, 0);
             }
 
             return "Added or already exists.";
@@ -83,6 +99,14 @@ class ChatRoomService
         int $ban
     ): RoomUserRelationship
     {
+        foreach($this->screens as $screen)
+        {
+            if ($screen->screen($roomId, Auth::id()))
+            {
+                return $screen->message();
+            }
+        }
+
         $relationship = $this->repository->getSingleRelationship($roomId, $userId);
         $this->repository->updateRelationship($relationship, $mute, $ban);
 

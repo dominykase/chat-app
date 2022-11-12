@@ -9,7 +9,7 @@ class RoomUserRelationship extends Model
 {
     use HasFactory;
     protected $table = 'room_users';
-    protected $fillable = ['room_id', 'user_id', 'is_muted', 'is_banned'];
+    protected $fillable = ['room_id', 'user_id', 'is_muted', 'is_banned', 'is_mod'];
 
     public function room() {
         return $this->hasOne('App\Models\ChatRoom', 'id', 'room_id');

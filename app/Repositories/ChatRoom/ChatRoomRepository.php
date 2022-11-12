@@ -28,6 +28,7 @@ class ChatRoomRepository
                 ->where('room_id', $room['id'])->first();
             $room['is_banned'] = $relationship->is_banned;
             $room['is_muted'] = $relationship->is_muted;
+            $room['is_mod'] = $relationship->is_mod;
             $returnedRooms[] = $room;
         }
 
@@ -44,13 +45,14 @@ class ChatRoomRepository
         return $chatRoom;
     }
 
-    public function createRelationship(int $roomId, int $userId): RoomUserRelationship
+    public function createRelationship(int $roomId, int $userId, int $isMod): RoomUserRelationship
     {
         return RoomUserRelationship::create([
             'room_id' => $roomId,
             'user_id' => $userId,
             'is_muted' => 0,
-            'is_banned' => 0
+            'is_banned' => 0,
+            'is_mod' => $isMod
         ]);
     }
 

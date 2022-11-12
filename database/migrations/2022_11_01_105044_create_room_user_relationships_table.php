@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('user_id');
             $table->boolean('is_muted');
             $table->boolean('is_banned');
+            $table->boolean('is_mod');
             $table->timestamps();
         });
     }

@@ -44,7 +44,7 @@ export const ManageChatRoomsComponent = (props) => {
             <div className="flex flex-col">
                 {
                     props.chatRooms.map((room) => {
-                        if (room.is_private === 0) {
+                        if (room.is_private === 0 && room.is_mod === 1) {
                             return (
                                 <div
                                     key={room.id}
@@ -66,7 +66,7 @@ export const ManageChatRoomsComponent = (props) => {
             <div className="flex flex-col">
                 {
                     props.chatRooms.map((room) => {
-                        if (room.is_private === 1) {
+                        if (room.is_private === 1 && room.is_mod === 1) {
                             return (
                                 <div
                                     key={room.id}
