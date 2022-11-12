@@ -7,10 +7,13 @@ export const ChatMessagesContainer = (props) => {
             {
                 props.messages &&
                 props.messages.map((message) => {
-                    return (<Message
-                        key={message.message + message.created_at}
-                        message={message}
-                    />);
+                    return (
+                        <Message
+                            key={message.message + message.created_at}
+                            message={message}
+                            toggleEditMessage={props.toggleEditMessage}
+                        />
+                    );
                 })
             }
         </div>

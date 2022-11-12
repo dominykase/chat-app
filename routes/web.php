@@ -68,3 +68,8 @@ Route::middleware('auth:sanctum')->post(
     '/chat/rooms/{roomId}/message',
     [ChatController::class, 'newMessage']
 );
+
+Route::middleware('auth:sanctum')->post(
+    '/chat/rooms/{roomId}/message/update',
+    [ChatController::class, 'updateMessage']
+);

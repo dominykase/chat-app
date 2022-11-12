@@ -14,14 +14,23 @@ class MessageService
     {
     }
 
-    public function getMessages(int $roomId, int $userId): string|Collection
+    public function getMessages(int $roomId, int $userId): string|array
     {
         if ($this->screens[0]->screen($roomId, $userId))
         {
             return $this->screens[0]->message();
         }
 
-        return $this->repository->getRoomMessages($roomId);
+        $rawMessages = $this->repository->getRoomMessages($roomId)->toArray();
+        $messagesWithVirtualData = [];
+
+        foreach ($rawMessages as $message)
+        {
+            $message['canEdit'] = $userId === $message['user_id'] ? 1 : 0;
+            $messagesWithVirtualData[] = $message;
+        }
+
+        return $messagesWithVirtualData;
     }
 
     public function createMessage(
@@ -39,6 +48,21 @@ class MessageService
         }
 
         return $this->repository->createMessage($roomId, $userId, $message);
+    }
+
+    public function updateMessage(
+        int $messageId,
+        int $userId,
+        int $authId,
+        string $message
+    ): string|ChatMessage
+    {
+        if ($this->screens[0]->screen($authId, $userId))
+        {
+            return $this->screens[0]->message();
+        }
+
+        return $this->repository->updateMessage($messageId, $message);
     }
 
 }

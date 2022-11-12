@@ -2,6 +2,7 @@ import {ChatMessagesContainer} from "@/Components/Chat/ChatMessagesContainer";
 import {MessageInput} from "@/Components/Chat/MessageInput";
 import {Component, useEffect, useState} from "react";
 import {MutedComponent} from "@/Components/Chat/MutedComponent";
+import {EditMessage} from "@/Components/Chat/EditMessage";
 
 export class ChatContainer extends Component {
 
@@ -9,7 +10,9 @@ export class ChatContainer extends Component {
         super(props);
 
         this.state = {
-            messages: []
+            messages: [],
+            editMessage: false,
+            editedMessage: undefined
         }
     }
 
@@ -23,6 +26,13 @@ export class ChatContainer extends Component {
                     this.setState({messages: response.data})
                 })
         }
+    }
+
+    toggleEditMessage = (message) => {
+        this.setState((prevState, props) => ({
+           editMessage: !prevState.editMessage,
+           editedMessage: message
+        }));
     }
 
     componentDidMount() {
@@ -40,11 +50,20 @@ export class ChatContainer extends Component {
     render() {
         return (
             <div className="container px-4 h-screen w-5/6" style={{border: "1px solid black"}} id="chat_container">
-                <ChatMessagesContainer messages={this.state.messages}/>
+                <ChatMessagesContainer
+                    messages={this.state.messages}
+                    toggleEditMessage={this.toggleEditMessage.bind(this)}
+                />
                 {
                     this.props.currentChatRoom.is_muted
                         ? <MutedComponent />
-                        : <MessageInput currentChatRoom={this.props.currentChatRoom}/>
+                        : this.state.editMessage
+                            ? <EditMessage
+                                message={this.state.editedMessage}
+                                toggleEditMessage={this.toggleEditMessage.bind(this)}
+                                currentChatRoom={this.props.currentChatRoom}
+                            />
+                            : <MessageInput currentChatRoom={this.props.currentChatRoom}/>
                 }
             </div>
         );

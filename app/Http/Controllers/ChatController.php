@@ -6,6 +6,7 @@ use App\Repositories\Messages\MessageRepository;
 use App\Services\Messages\MessageService;
 use App\Services\Screeners\BanScreener;
 use App\Services\Screeners\MuteScreener;
+use App\Services\Screeners\UserScreener;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\ChatMessage;
@@ -42,6 +43,27 @@ class ChatController extends Controller
         if ($message instanceof ChatMessage)
         {
             broadcast(new NewChatMessage($message))->toOthers();
+        }
+
+        return $message;
+    }
+
+    public function updateMessage(Request $request, $roomId): string|ChatMessage
+    {
+        $service = new MessageService($this->messageRepository, [
+            new UserScreener()
+        ]);
+
+        $message = $service->updateMessage(
+            $request->messageId,
+            $request->userId,
+            Auth::id(),
+            $request->message
+        );
+
+        if ($message instanceof ChatMessage)
+        {
+            NewChatMessage::dispatch($message);
         }
 
         return $message;

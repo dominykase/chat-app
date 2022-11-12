@@ -32,4 +32,16 @@ class MessageRepository
 
         return $newMessage;
     }
+
+    public function updateMessage(
+        int $messageId,
+        string $message
+    ): ChatMessage
+    {
+        ChatMessage::where('id', $messageId)->update([
+            'message' => $message
+        ]);
+
+        return ChatMessage::where('id', $messageId)->first();
+    }
 }
