@@ -3,10 +3,18 @@ import {AddUserToChatRoom} from "@/Components/Chat/ManageChatRooms/AddUserToChat
 import {UserCard} from "@/Components/Chat/ManageChatRooms/UserCard";
 
 export const ManageChatRoomsComponent = (props) => {
-    const [editedRoom, setEditedRoom] = useState(props.chatRooms[0]);
+    let room = props.chatRooms.filter((x) => x.is_mod == 1)[0];
+    if (!room){
+        room = null
+    }
+    console.log(props.chatRooms);
+    const [editedRoom, setEditedRoom] = useState(room);
     const [editedRoomUsers, setEditedRoomUsers] = useState({users: [], relationships: []});
 
     const getRoomUsers = () => {
+        if (!editedRoom) {
+            return;
+        }
         axios({
             method: "get",
             url: "http://localhost:8000/chat/room/" + editedRoom.id + "/user"
@@ -47,7 +55,7 @@ export const ManageChatRoomsComponent = (props) => {
                 <div className="flex flex-col w-1/2 h-60 overflow-scroll">
                     {
                         props.chatRooms.map((room) => {
-                            if (room.is_private === 0 && room.is_mod === 1) {
+                            if (room.is_private === 0 && room.is_mod === 1 && editedRoom) {
                                 return (
                                     <div
                                         className="m-1 p-1 text-center"
@@ -73,7 +81,7 @@ export const ManageChatRoomsComponent = (props) => {
                 <div className="flex flex-col w-1/2 h-60 overflow-scroll">
                     {
                         props.chatRooms.map((room) => {
-                            if (room.is_private === 1 && room.is_mod === 1) {
+                            if (room.is_private === 1 && room.is_mod === 1 && editedRoom) {
                                 return (
                                     <div
                                         className="m-1 p-1 text-center"
@@ -98,8 +106,8 @@ export const ManageChatRoomsComponent = (props) => {
             </div>
             <div className="w-full flex flex-row mt-4">
                 <div className="w-1/2">
-                    <p><strong>Name:</strong> {editedRoom.name}</p>
-                    <p><strong>Public/private:</strong> {editedRoom.is_private ? "Private" : "Public"}</p>
+                    <p><strong>Name:</strong> {editedRoom ? editedRoom.name : null}</p>
+                    <p><strong>Public/private:</strong> {editedRoom && editedRoom.is_private ? "Private" : "Public"}</p>
                     <p><strong>Users:</strong></p>
                     <div className="w-full h-60 overflow-scroll">
                     {
