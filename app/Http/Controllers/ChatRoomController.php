@@ -36,7 +36,7 @@ class ChatRoomController extends Controller
         return response()->json(
             $service->createNewChatRoom(
                 $request->roomName,
-                $request->private,
+                $request->private ? 1 : 0,
                 Auth::id()
             )
         );

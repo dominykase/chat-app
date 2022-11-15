@@ -49,7 +49,7 @@ export class ChatContainer extends Component {
 
     render() {
         return (
-            <div className="container px-4 h-screen w-5/6" style={{border: "1px solid black"}} id="chat_container">
+            <div className="container px-4 h-screen w-5/6" id="chat_container">
                 <ChatMessagesContainer
                     messages={this.state.messages}
                     toggleEditMessage={this.toggleEditMessage.bind(this)}

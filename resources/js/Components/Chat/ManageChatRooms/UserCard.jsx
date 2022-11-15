@@ -42,7 +42,7 @@ export const UserCard = (props) => {
                     }}
                 />
                 <button
-                    className="bg-amber-500 px-4 rounded"
+                    className="bg-amber-300 px-4 rounded"
                     onClick={updateUser}
                     >Submit</button>
             </div>

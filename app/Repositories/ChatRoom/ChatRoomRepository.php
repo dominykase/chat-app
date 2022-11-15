@@ -77,7 +77,7 @@ class ChatRoomRepository
         return ChatRoom::where('id', $roomId)->get()->first();
     }
 
-    public function getSingleRelationship(int $roomId, int $userId): RoomUserRelationship
+    public function getSingleRelationship(int $roomId, int $userId): null|RoomUserRelationship
     {
         return RoomUserRelationship::where('room_id', $roomId)
             ->where('user_id', $userId)

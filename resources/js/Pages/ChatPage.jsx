@@ -80,10 +80,10 @@ export default class ChatPage extends Component {
                 {
                     this.state.manageChatRooms
                     ? <ManageChatRoomsComponent
-                            toggleCreateChatRoomView={this.toggleCreateChatRoomView.bind(this)}
-                            toggleManageChatRooms={this.toggleManageChatRooms.bind(this)}
-                            chatRooms={this.state.chatRooms}
-                        />
+                        toggleCreateChatRoomView={this.toggleCreateChatRoomView.bind(this)}
+                        toggleManageChatRooms={this.toggleManageChatRooms.bind(this)}
+                        chatRooms={this.state.chatRooms}
+                    />
                     : this.state.createChatRoomView
                         ? <CreateChatRoomView
                             toggleCreateChatRoomView={this.toggleCreateChatRoomView.bind(this)}

@@ -44,14 +44,20 @@ export const AddUserToChatRoom = (props) => {
     }
 
     return (
-        <div>
+        <div className="w-1/2">
             <p><strong>Add user:</strong></p>
             <input
                 value={searchInputValue}
                 onChange={handleChange}
                 placeholder="Search by name or email"
                 />
-            <div className="flex flex-col">
+            <button
+                className="px-4 rounded bg-amber-300 ml-2"
+                onClick={addUser}
+            >
+                Add user
+            </button>
+            <div className="flex flex-col h-60 mt-6 overflow-scroll">
                 {
                     foundUsers.map((user) => {
                         return (
@@ -72,12 +78,6 @@ export const AddUserToChatRoom = (props) => {
                     })
                 }
             </div>
-            <button
-                className="px-4 rounded bg-amber-500"
-                onClick={addUser}
-            >
-                Add user
-            </button>
         </div>
     );
 }
