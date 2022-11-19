@@ -64,6 +64,12 @@ Route::middleware('auth:sanctum')->get(
     '/chat/room/{roomId}',
     [ChatController::class, 'messages']
 );
+
+Route::middleware('auth:sanctum')->post(
+    '/chat/room/{roomId}/read',
+    [ChatController::class, 'readMessages']
+);
+
 Route::middleware('auth:sanctum')->post(
     '/chat/rooms/{roomId}/message',
     [ChatController::class, 'newMessage']

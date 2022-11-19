@@ -22,6 +22,7 @@ export const ChatRoomSelection = (props) => {
                                     chatRoom={room}
                                     selected={props.currentChatRoom.id == room.id ? true : false}
                                     setChatRoom={props.setChatRoom}
+                                    setRerender={props.setRerender}
                                 />
                             )
                     )

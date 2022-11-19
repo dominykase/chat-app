@@ -17,7 +17,7 @@ export class ChatContainer extends Component {
     }
 
     getMessages = () => {
-        if (this.props.currentChatRoom.id) {
+        if (this.props.currentChatRoom.id && this.props.rerender) {
             axios({
                 method: "get",
                 url: `http://localhost:8000/chat/room/${this.props.currentChatRoom.id}`
@@ -39,6 +39,7 @@ export class ChatContainer extends Component {
         this.getMessages();
 
         document.addEventListener('messagesent', () => {
+            this.props.setRerender(true);
             this.getMessages();
         });
 

@@ -56,7 +56,8 @@ class RegisteredUserController extends Controller
                 'user_id' => $user->id,
                 'is_muted' => 0,
                 'is_banned' => 0,
-                'is_mod' => 0
+                'is_mod' => 0,
+                'unread_count' => 0
             ]);
         }
 

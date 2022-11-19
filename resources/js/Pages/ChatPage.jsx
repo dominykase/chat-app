@@ -12,8 +12,14 @@ export default class ChatPage extends Component {
             chatRooms: [],
             createChatRoomView: false,
             manageChatRooms: false,
-            currentChatRoom: {id: undefined}
+            currentChatRoom: {id: undefined},
+            rerender: true
         }
+
+        window.Echo.channel("chatroomfeed")
+            .listen('.chatrooms.updated', e => {
+                this.getChatRoomsWithoutChangingCurrentRoom();
+            });
     }
 
     toggleCreateChatRoomView = (toggle) => {
@@ -34,6 +40,20 @@ export default class ChatPage extends Component {
                 this.setState({
                     chatRooms: response.data,
                     currentChatRoom: displayedRooms[0],
+                    rerender: true
+                })
+            })
+    }
+
+    getChatRoomsWithoutChangingCurrentRoom = () => {
+        axios({
+            method: "get",
+            url: "http://localhost:8000/chat/rooms"
+        })
+            .then((response) => {
+                this.setState({
+                    chatRooms: response.data,
+                    rerender: false
                 })
             })
     }
@@ -67,6 +87,10 @@ export default class ChatPage extends Component {
         this.connect();
     }
 
+    setRerender(toggle) {
+        this.setState({rerender: toggle});
+    }
+
     render() {
         return (
             <div className="w-full h-full flex flex-row">
@@ -76,6 +100,7 @@ export default class ChatPage extends Component {
                     setChatRoom={this.updateChatRoom.bind(this)}
                     toggleCreateChatRoomView={this.toggleCreateChatRoomView.bind(this)}
                     toggleManageChatRooms={this.toggleManageChatRooms.bind(this)}
+                    setRerender={this.setRerender.bind(this)}
                 />
                 {
                     this.state.manageChatRooms
@@ -92,6 +117,8 @@ export default class ChatPage extends Component {
                         : <ChatContainer
                             chatRooms={this.state.chatRooms}
                             currentChatRoom={this.state.currentChatRoom}
+                            rerender={this.state.rerender}
+                            setRerender={this.setRerender.bind(this)}
                         />
 
                 }

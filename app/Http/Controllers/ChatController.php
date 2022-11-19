@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ChatRoomsUpdated;
+use App\Models\ChatRoom;
 use App\Repositories\Messages\MessageRepository;
 use App\Services\Messages\MessageService;
 use App\Services\Screeners\BanScreener;
@@ -25,10 +27,11 @@ class ChatController extends Controller
         $service = new MessageService($this->messageRepository, [
             new BanScreener()
         ]);
+        $messages = $service->getMessages($roomId, Auth::id());
 
-        return response()->json(
-            $service->getMessages($roomId, Auth::id())
-        );
+        ChatRoomsUpdated::dispatch();
+
+        return response()->json($messages);
     }
 
     public function newMessage(Request $request, $roomId): string|ChatMessage
@@ -42,10 +45,11 @@ class ChatController extends Controller
 
         if ($message instanceof ChatMessage)
         {
-            broadcast(new NewChatMessage($message))->toOthers();
+            NewChatMessage::dispatch($message);
+            ChatRoomsUpdated::dispatch();
         }
 
-        return $message;
+        return response()->json($message);
     }
 
     public function updateMessage(Request $request, $roomId): string|ChatMessage

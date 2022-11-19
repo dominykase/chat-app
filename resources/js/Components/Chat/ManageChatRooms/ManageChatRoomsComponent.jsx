@@ -3,7 +3,7 @@ import {AddUserToChatRoom} from "@/Components/Chat/ManageChatRooms/AddUserToChat
 import {UserCard} from "@/Components/Chat/ManageChatRooms/UserCard";
 
 export const ManageChatRoomsComponent = (props) => {
-    let room = props.chatRooms.filter((x) => x.is_mod == 1)[0];
+    let room = props.chatRooms.filter((x) => x.is_mod === 1)[0];
     if (!room){
         room = null
     }

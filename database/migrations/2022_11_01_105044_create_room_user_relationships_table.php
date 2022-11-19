@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('is_muted');
             $table->boolean('is_banned');
             $table->boolean('is_mod');
+            $table->integer('unread_count');
             $table->timestamps();
         });
     }

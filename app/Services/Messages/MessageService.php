@@ -21,6 +21,9 @@ class MessageService
             return $this->screens[0]->message();
         }
 
+        $relationship = $this->repository->getRelationship($roomId, $userId);
+        $this->repository->updateRelationship($relationship, 0);
+
         $rawMessages = $this->repository->getRoomMessages($roomId)->toArray();
         $messagesWithVirtualData = [];
 
@@ -45,6 +48,12 @@ class MessageService
             {
                 return $screen->message();
             }
+        }
+
+        $relationships = $this->repository->getRoomRelationships($roomId);
+        foreach($relationships as $relationship) {
+            $unreadCount = $relationship->unread_count;
+            $this->repository->updateRelationship($relationship, $unreadCount + 1);
         }
 
         return $this->repository->createMessage($roomId, $userId, $message);

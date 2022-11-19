@@ -28,8 +28,7 @@ export const MessageInput = (props) => {
             }
         })
             .then((response) => {
-                if (response.status == 201) {
-
+                if (response.status === 200) {
                     const event = new Event('messagesent');
                     document.dispatchEvent(event);
                 }

@@ -29,6 +29,7 @@ class ChatRoomRepository
             $room['is_banned'] = $relationship->is_banned;
             $room['is_muted'] = $relationship->is_muted;
             $room['is_mod'] = $relationship->is_mod;
+            $room['unread_messages'] = $relationship->unread_count;
             $returnedRooms[] = $room;
         }
 
@@ -52,7 +53,8 @@ class ChatRoomRepository
             'user_id' => $userId,
             'is_muted' => 0,
             'is_banned' => 0,
-            'is_mod' => $isMod
+            'is_mod' => $isMod,
+            'unread_count' => 0
         ]);
     }
 
@@ -87,12 +89,14 @@ class ChatRoomRepository
     public function updateRelationship(
         RoomUserRelationship &$relationship,
         int $mute,
-        int $ban
+        int $ban,
+        int $unreadCount
     ): void
     {
         $relationship->update([
             'is_muted' => $mute,
-            'is_banned' => $ban
+            'is_banned' => $ban,
+            'unread_count' => $unreadCount
         ]);
     }
 }

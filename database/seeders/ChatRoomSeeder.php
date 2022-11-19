@@ -30,7 +30,8 @@ class ChatRoomSeeder extends Seeder
             'user_id' => 1,
             'is_muted' => 0,
             'is_banned' => 0,
-            'is_mod' => 1
+            'is_mod' => 1,
+            'unread_count' => 0
         ]);
     }
 }
