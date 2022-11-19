@@ -106,7 +106,7 @@ class ChatRoomService
         }
         else
         {
-            return "Room is public, cannot add users";
+            return "Room is public, cannot add users.";
         }
     }
 
@@ -126,7 +126,7 @@ class ChatRoomService
         }
 
         $relationship = $this->repository->getSingleRelationship($roomId, $userId);
-        $this->repository->updateRelationship($relationship, $mute, $ban);
+        $this->repository->updateRelationship($relationship, $mute, $ban, $relationship->unread_count);
 
         return $relationship;
     }

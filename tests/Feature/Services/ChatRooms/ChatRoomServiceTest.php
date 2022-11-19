@@ -102,4 +102,64 @@ class ChatRoomServiceTest extends TestCase
         $this->assertEquals(1, $usersAndRelationships['relationships'][1]['is_banned']);
     }
 
+    public function testServiceRefusesToAddUserToARoomIfTheRoomIsPublicCorrectly()
+    {
+        $room = ChatRoom::create(['name' => 'room1', 'is_private' => 0]);
+
+        $service = new ChatRoomService(new ChatRoomRepository(), []);
+        $this->assertEquals(
+            'Room is public, cannot add users.',
+            $service->addUserToChatRoom($room->id, 1)
+        );
+    }
+
+    public function testServiceAddsUserToARoomIfTheRoomIsPrivateCorrectly()
+    {
+        $room = ChatRoom::create(['name' => 'room1', 'is_private' => 1]);
+
+        $service = new ChatRoomService(new ChatRoomRepository(), []);
+        $this->assertEquals(
+            'Added or already exists.',
+            $service->addUserToChatRoom($room->id, 1)
+        );
+        $this->assertNotNull(
+            RoomUserRelationship::where('room_id', $room->id)
+                ->where('user_id', 1)
+                ->get()->first()
+        );
+    }
+
+    public function testServiceReturnsCorrectResponseWhenAddingAUserIfTheUserIsAlreadyInThePrivateRoomCorrectly()
+    {
+        $room = ChatRoom::create(['name' => 'room1', 'is_private' => 1]);
+        RoomUserRelationship::create(['room_id' => $room->id, 'user_id' => 1, 'is_muted' => 0, 'is_banned' => 0,
+            'is_mod' => 0, 'unread_count' => 0]);
+
+        $service = new ChatRoomService(new ChatRoomRepository(), []);
+        $this->assertEquals(
+            'Added or already exists.',
+            $service->addUserToChatRoom($room->id, 1)
+        );
+    }
+
+    public function testServiceUpdatesAUserRoomRelationshipCorrectly()
+    {
+        RoomUserRelationship::create(['room_id' => 1, 'user_id' => 1, 'is_muted' => 0, 'is_banned' => 0,
+            'is_mod' => 0, 'unread_count' => 0]);
+        $service = new ChatRoomService(new ChatRoomRepository(), []);
+
+        $service->updateRoomUserStatus(1, 1, 1, 0);
+        $relationship = RoomUserRelationship::where('room_id', 1)
+            ->where('user_id', 1)
+            ->get()->first();
+        $this->assertEquals(1, $relationship->is_muted);
+        $this->assertEquals(0, $relationship->is_banned);
+
+        $service->updateRoomUserStatus(1, 1, 0, 1);
+        $relationship = RoomUserRelationship::where('room_id', 1)
+            ->where('user_id', 1)
+            ->get()->first();
+        $this->assertEquals(0, $relationship->is_muted);
+        $this->assertEquals(1, $relationship->is_banned);
+    }
 }
