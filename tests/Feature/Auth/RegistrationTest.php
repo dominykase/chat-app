@@ -10,6 +10,9 @@ class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @group skip
+     */
     public function test_registration_screen_can_be_rendered()
     {
         $response = $this->get('/register');
@@ -17,6 +20,9 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @group skip
+     */
     public function test_new_users_can_register()
     {
         $response = $this->post('/register', [

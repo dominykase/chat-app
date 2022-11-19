@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ChatRoom extends Model
 {
     use HasFactory;
-    protected $fillable = ['id'];
+    protected $fillable = ['id', 'name', 'is_private'];
 
     public function messages() {
         return $this->hasMany('App\Models\ChatMessage');

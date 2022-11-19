@@ -20,7 +20,25 @@ class ChatRoomService
 
     public function getRooms($userId): array
     {
-        return $this->repository->getRoomsByUserId($userId);
+        $roomIds = $this->repository->getRoomIdsByUserId($userId);
+        $rooms = ChatRoom::all()->toArray();
+
+        $filteredRooms = array_values(array_filter($rooms, function ($room) use ($roomIds) {
+            return in_array($room['id'], $roomIds);
+        }));
+
+        // add virtual values to returned resources
+        $returnedRooms = [];
+        foreach ($filteredRooms as $room) {
+            $relationship = $this->repository->getSingleRelationship($room['id'], $userId);
+            $room['is_banned'] = $relationship->is_banned;
+            $room['is_muted'] = $relationship->is_muted;
+            $room['is_mod'] = $relationship->is_mod;
+            $room['unread_messages'] = $relationship->unread_count;
+            $returnedRooms[] = $room;
+        }
+
+        return $returnedRooms;
     }
 
     public function createNewChatRoom(

@@ -16,9 +16,10 @@ class MessageService
 
     public function getMessages(int $roomId, int $userId): string|array
     {
-        if ($this->screens[0]->screen($roomId, $userId))
-        {
-            return $this->screens[0]->message();
+        foreach($this->screens as $screen) {
+            if ($screen->screen($roomId, $userId)) {
+                return $screen->message();
+            }
         }
 
         $relationship = $this->repository->getRelationship($roomId, $userId);
@@ -66,9 +67,10 @@ class MessageService
         string $message
     ): string|ChatMessage
     {
-        if ($this->screens[0]->screen($authId, $userId))
-        {
-            return $this->screens[0]->message();
+        foreach($this->screens as $screen) {
+            if ($screen->screen($authId, $userId)) {
+                return $screen->message();
+            }
         }
 
         return $this->repository->updateMessage($messageId, $message);

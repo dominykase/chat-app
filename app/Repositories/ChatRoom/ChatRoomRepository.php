@@ -11,29 +11,10 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ChatRoomRepository
 {
-    public function getRoomsByUserId($userId): array
+    public function getRoomIdsByUserId($userId): array
     {
-        $roomIds = RoomUserRelationship::where('user_id', $userId)
+        return RoomUserRelationship::where('user_id', $userId)
             ->pluck('room_id')->toArray();
-        $rooms = ChatRoom::all()->toArray();
-
-        $filteredRooms = array_values(array_filter($rooms, function ($room) use ($roomIds) {
-            return in_array($room['id'], $roomIds);
-        }));
-
-        // add virtual values to returned resources
-        $returnedRooms = [];
-        foreach ($filteredRooms as $room) {
-            $relationship = RoomUserRelationship::where('user_id', $userId)
-                ->where('room_id', $room['id'])->first();
-            $room['is_banned'] = $relationship->is_banned;
-            $room['is_muted'] = $relationship->is_muted;
-            $room['is_mod'] = $relationship->is_mod;
-            $room['unread_messages'] = $relationship->unread_count;
-            $returnedRooms[] = $room;
-        }
-
-        return $returnedRooms;
     }
 
     public function createRoom(string $name, int $isPrivate): ChatRoom
