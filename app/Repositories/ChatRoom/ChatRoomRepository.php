@@ -9,7 +9,7 @@ use App\Models\RoomUserRelationship;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
-class ChatRoomRepository
+class ChatRoomRepository // turi implementuot interface
 {
     public function getRoomIdsByUserId($userId): array
     {
@@ -19,6 +19,7 @@ class ChatRoomRepository
 
     public function createRoom(string $name, int $isPrivate): ChatRoom
     {
+        // ChatRoom::create
         $chatRoom = new ChatRoom();
         $chatRoom->name = $name;
         $chatRoom->is_private = $isPrivate;

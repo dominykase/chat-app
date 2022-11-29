@@ -28,6 +28,7 @@ export const EditMessage = (props) => {
             url: 'http://localhost:8000/chat/rooms/' + props.currentChatRoom.id + '/message/update',
             data: {
                 messageId: props.message.id,
+                roomId: props.message.chat_room_id,
                 userId: props.message.user_id,
                 message: inputValue
             }

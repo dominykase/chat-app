@@ -21,8 +21,8 @@ class ChatRoomService
     public function getRooms($userId): array
     {
         $roomIds = $this->repository->getRoomIdsByUserId($userId);
-        $rooms = ChatRoom::all()->toArray();
-
+        $rooms = ChatRoom::all()->filter();
+        // collection galima filtruoti, nebutinai su array
         $filteredRooms = array_values(array_filter($rooms, function ($room) use ($roomIds) {
             return in_array($room['id'], $roomIds);
         }));

@@ -33,7 +33,7 @@ class ChatController extends Controller
 
         return response()->json($messages);
     }
-
+    // galima padaryt kad rodytu kad useris type'ina
     public function newMessage(Request $request, $roomId): string|ChatMessage
     {
         $service = new MessageService($this->messageRepository, [
@@ -55,11 +55,14 @@ class ChatController extends Controller
     public function updateMessage(Request $request, $roomId): string|ChatMessage
     {
         $service = new MessageService($this->messageRepository, [
-            new UserScreener()
+            new UserScreener(),
+            new MuteScreener(),
+            new BanScreener()
         ]);
 
         $message = $service->updateMessage(
             $request->messageId,
+            $request->roomId,
             $request->userId,
             Auth::id(),
             $request->message

@@ -93,7 +93,7 @@ class MessageServiceTest extends TestCase
 
         $repository = new MessageRepository();
         $service = new MessageService($repository, []);
-        $updatedMessage = $service->updateMessage($message->id, 1, 1,'hello!');
+        $updatedMessage = $service->updateMessage($message->id, 1, 1,1,'hello!');
 
         $this->assertEquals('hello!', $updatedMessage->message);
     }

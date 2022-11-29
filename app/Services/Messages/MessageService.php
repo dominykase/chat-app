@@ -6,6 +6,7 @@ namespace App\Services\Messages;
 
 use App\Models\ChatMessage;
 use App\Repositories\Messages\MessageRepository;
+use App\Services\Screeners\UserScreener;
 use Illuminate\Database\Eloquent\Collection;
 
 class MessageService
@@ -62,13 +63,16 @@ class MessageService
 
     public function updateMessage(
         int $messageId,
+        int $roomId,
         int $userId,
         int $authId,
         string $message
     ): string|ChatMessage
     {
         foreach($this->screens as $screen) {
-            if ($screen->screen($authId, $userId)) {
+            if ($screen instanceof UserScreener && $screen->screen($authId, $userId)) {
+                return $screen->message();
+            } else if ($screen->screen($roomId, $authId)) {
                 return $screen->message();
             }
         }
