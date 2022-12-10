@@ -25,7 +25,7 @@ Retrieves all messages in a chat room by given chat room ID.
 + `int` ID of the authenticated user making the request through API (can be acquired by Laravel's `Auth::id()`)
 #### Returns
 + `string` is returned if one of the `ScreenInterface` objects passed through constructor denies access to the request. Returned value is the resulting error message of the `ScreenInterface` object. For example, if a user, banned in this particular chat room, requests to get messages from this chat room they will see `User is banned in this chat room` message returned.
-+ `array` of chat room messages is returned otherwise (array keys: `id`, `chat_room_id`, `user_id`, `message`, `created_at`, `updated_at`, `canEdit`).
++ `MessageVirtual` instance
 <hr/>
 
 ### MessageService::createMessage
@@ -45,14 +45,12 @@ Creates a new message by user (of provided user ID) in the chat room (by given c
 
 ### MessageService::updateMessage
 ```
-public function updateMessage(int $messageId, int $roomId, int $userId, int $authId, string $message): string|ChatMessage
+public function updateMessage(int $messageId, int $authId, string $message): string|ChatMessage
 ```
 #### Description
 Updates an existing message given by messageID.
 #### Parameters
 + `int` ID of message to be updated
-+ `int` ID of room message is in
-+ `int` ID of user that created the message
 + `int` ID of authenticated user making the request
 + `string` new message body
 #### Returns
