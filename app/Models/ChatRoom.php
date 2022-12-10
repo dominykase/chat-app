@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $is_private
+ * @property string $name
+ * @property int $id
  */
 class ChatRoom extends Model
 {
@@ -16,4 +18,5 @@ class ChatRoom extends Model
     public function messages() {
         return $this->hasMany('App\Models\ChatMessage');
     }
+
 }

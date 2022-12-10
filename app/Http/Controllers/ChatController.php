@@ -31,10 +31,16 @@ class ChatController extends Controller
 
         ChatRoomsUpdated::dispatch();
 
-        return response()->json($messages);
+        // convert objects to arrays so they can be JSON serialized
+        $response = [];
+        foreach ($messages as $message) {
+            $response[] = $message->toArray();
+        }
+
+        return response()->json($response);
     }
-    // galima padaryt kad rodytu kad useris type'ina
-    public function newMessage(Request $request, $roomId): string|ChatMessage
+
+    public function newMessage(Request $request, int $roomId): string|ChatMessage
     {
         $service = new MessageService($this->messageRepository, [
             new MuteScreener(),
@@ -62,8 +68,6 @@ class ChatController extends Controller
 
         $message = $service->updateMessage(
             $request->messageId,
-            $request->roomId,
-            $request->userId,
             Auth::id(),
             $request->message
         );

@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Repositories\Messages;
 
 use App\Models\ChatMessage;
+use App\Models\ChatRoom;
 use App\Models\RoomUserRelationship;
+use App\Repositories\RepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
-class MessageRepository
+class MessageRepository implements RepositoryInterface
 {
-    public function getRoomMessages(int $roomId): Collection
+    public function getRoomSubjects(int $roomId): Collection
     {
         return ChatMessage::where('chat_room_id', $roomId)
             ->with('user')
@@ -19,11 +21,18 @@ class MessageRepository
             ->get();
     }
 
-    public function createMessage(
-        int $roomId,
-        int $userId,
-        string $message
-    ): ChatMessage
+    public function get(int $id): ChatMessage
+    {
+        return ChatMessage::where('id', $id)->get()->first();
+    }
+
+    public function create(
+        ?int $roomId = null,
+        ?int $userId = null,
+        ?string $message = null,
+        ?string $name = null,
+        ?int $isPrivate = null
+    ): ChatMessage|ChatRoom
     {
         $newMessage = new ChatMessage();
         $newMessage->user_id = $userId;
@@ -34,16 +43,13 @@ class MessageRepository
         return $newMessage;
     }
 
-    public function updateMessage(
-        int $messageId,
-        string $message
-    ): ChatMessage
+    public function update(int $id, string $message): ChatMessage
     {
-        ChatMessage::where('id', $messageId)->update([
+        ChatMessage::where('id', $id)->update([
             'message' => $message
         ]);
 
-        return ChatMessage::where('id', $messageId)->first();
+        return ChatMessage::where('id', $id)->first();
     }
 
     public function getRoomRelationships(int $roomId): Collection
@@ -59,7 +65,17 @@ class MessageRepository
             ->get()->first();
     }
 
-    public function updateRelationship(RoomUserRelationship &$relationship, int $unreadCount): void
+    public function createRelationship(int $roomId, int $userId, int $isMod): RoomUserRelationship
+    {
+        // TODO: Implement createRelationship() method.
+    }
+
+    public function updateRelationship(
+        RoomUserRelationship &$relationship,
+        int $unreadCount,
+        int $mute = null,
+        int $ban = null
+    ): void
     {
         $relationship->update([
             'unread_count' => $unreadCount

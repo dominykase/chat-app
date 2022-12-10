@@ -56,7 +56,7 @@ export class ChatContainer extends Component {
                     toggleEditMessage={this.toggleEditMessage.bind(this)}
                 />
                 {
-                    this.props.currentChatRoom.is_muted
+                    this.props.currentChatRoom.isMuted
                         ? <MutedComponent />
                         : this.state.editMessage
                             ? <EditMessage

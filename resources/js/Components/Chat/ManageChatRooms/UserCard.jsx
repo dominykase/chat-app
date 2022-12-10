@@ -1,8 +1,8 @@
 import {useEffect, useState} from "react";
 
 export const UserCard = (props) => {
-    const [muteCheckBox, setMuteCheckBox] = useState(props.muted == 1 ? true : false);
-    const [banCheckBox, setBanCheckBox] = useState(props.banned == 1 ? true : false);
+    const [muteCheckBox, setMuteCheckBox] = useState(props.muted === 1);
+    const [banCheckBox, setBanCheckBox] = useState(props.banned === 1);
 
     const updateUser = () => {
         axios({

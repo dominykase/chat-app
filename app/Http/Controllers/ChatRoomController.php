@@ -24,9 +24,15 @@ class ChatRoomController extends Controller
     {
         $service = new ChatRoomService($this->chatRepository, []);
 
-        return response()->json(
-            $service->getRooms(Auth::id())
-        );
+        $rooms = $service->getRooms(Auth::id());
+
+        // convert to objects to arrays so they can be JSON serialized
+        $response = [];
+        foreach ($rooms as $room) {
+            $response[] = $room->toArray();
+        }
+
+        return response()->json($response);
     }
 
     public function createChatRoom(Request $request): JsonResponse

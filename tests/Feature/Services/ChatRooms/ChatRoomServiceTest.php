@@ -27,11 +27,11 @@ class ChatRoomServiceTest extends TestCase
         $service = new ChatRoomService(new ChatRoomRepository(), []);
         $rooms = $service->getRooms(1);
 
-        $this->assertEquals(2, count($rooms));
-        $this->assertEquals('room2', $rooms[0]['name']);
-        $this->assertEquals(0, $rooms[0]['is_banned']);
-        $this->assertEquals('room3', $rooms[1]['name']);
-        $this->assertEquals(1, $rooms[1]['is_banned']);
+        $this->assertEquals(2, $rooms->count());
+        $this->assertEquals('room2', $rooms->get(0)->getName());
+        $this->assertEquals(0, $rooms->get(0)->getIsBanned());
+        $this->assertEquals('room3', $rooms->get(1)->getName());
+        $this->assertEquals(1, $rooms->get(1)->getIsBanned());
     }
 
     public function testServiceCreatesAChatRoomCorrectly()
@@ -95,11 +95,11 @@ class ChatRoomServiceTest extends TestCase
         $service = new ChatRoomService(new ChatRoomRepository(), []);
 
         $usersAndRelationships = $service->getUsersByRoomId(1);
-        $this->assertEquals(2, count($usersAndRelationships['users']));
-        $this->assertEquals('admin', $usersAndRelationships['users'][0]['name']);
-        $this->assertEquals('test', $usersAndRelationships['users'][1]['name']);
-        $this->assertEquals(0, $usersAndRelationships['relationships'][0]['is_banned']);
-        $this->assertEquals(1, $usersAndRelationships['relationships'][1]['is_banned']);
+        $this->assertEquals(2, $usersAndRelationships->get('users')->count());
+        $this->assertEquals('admin', $usersAndRelationships->get('users')->get(0)->name);
+        $this->assertEquals('test', $usersAndRelationships->get('users')->get(1)->name);
+        $this->assertEquals(0, $usersAndRelationships->get('relationships')->get(0)->is_banned);
+        $this->assertEquals(1, $usersAndRelationships->get('relationships')->get(1)->is_banned);
     }
 
     public function testServiceRefusesToAddUserToARoomIfTheRoomIsPublicCorrectly()

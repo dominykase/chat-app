@@ -9,7 +9,7 @@ export const ChatMessagesContainer = (props) => {
                 props.messages.map((message) => {
                     return (
                         <Message
-                            key={message.message + message.created_at}
+                            key={message.id}
                             message={message}
                             toggleEditMessage={props.toggleEditMessage}
                         />

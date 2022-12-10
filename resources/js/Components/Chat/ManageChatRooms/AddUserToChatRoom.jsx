@@ -33,7 +33,7 @@ export const AddUserToChatRoom = (props) => {
     const handleChange = (e) => {
         setSearchInputValue(e.target.value);
 
-        if (searchInputValue.length == 0) {
+        if (searchInputValue.length === 0) {
             return;
         }
 

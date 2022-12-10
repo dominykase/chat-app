@@ -18,17 +18,17 @@ class MessageServiceTest extends TestCase
     public function testRetrievesAllMessagesCorrectly()
     {
         // prepare database
-        ChatMessage::create(['user_id' => 1, 'chat_room_id' => 1, 'message' => 'abc']);
-        ChatMessage::create(['user_id' => 1, 'chat_room_id' => 1, 'message' => 'def']);
-        User::create(['name' => 'admin', 'password' => 'abc', 'email' => 'admin@admin.com']);
-        RoomUserRelationship::create(['room_id' => 1, 'user_id' => 1, 'is_muted' => 0, 'is_banned' => 0,
+        $user = User::create(['name' => 'admin', 'password' => 'abc', 'email' => 'admin@admin.com']);
+        ChatMessage::create(['user_id' => $user->id, 'chat_room_id' => 1, 'message' => 'abc']);
+        ChatMessage::create(['user_id' => $user->id, 'chat_room_id' => 1, 'message' => 'def']);
+        RoomUserRelationship::create(['room_id' => 1, 'user_id' => $user->id, 'is_muted' => 0, 'is_banned' => 0,
             'is_mod' => 1, 'unread_count' => 0]);
 
         $service = new MessageService(new MessageRepository(), []);
-        $messages = $service->getMessages(1, 1);
+        $messages = $service->getMessages(1, $user->id);
 
-        $this->assertEquals('abc', $messages[0]['message']);
-        $this->assertEquals('def', $messages[1]['message']);
+        $this->assertEquals('abc', $messages->get(0)->getMessage());
+        $this->assertEquals('def', $messages->get(1)->getMessage());
     }
 
     public function testCreatesAMessageCorrectly()
@@ -90,10 +90,9 @@ class MessageServiceTest extends TestCase
             'is_mod' => 1, 'unread_count' => 0]);
         $message = ChatMessage::create(['user_id' => 1, 'chat_room_id' => 1, 'message' => 'hello']);
 
-
         $repository = new MessageRepository();
         $service = new MessageService($repository, []);
-        $updatedMessage = $service->updateMessage($message->id, 1, 1,1,'hello!');
+        $updatedMessage = $service->updateMessage($message->id,1,'hello!');
 
         $this->assertEquals('hello!', $updatedMessage->message);
     }

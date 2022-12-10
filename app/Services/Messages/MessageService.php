@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace App\Services\Messages;
 
 use App\Models\ChatMessage;
+use App\Models\User;
 use App\Repositories\Messages\MessageRepository;
+use App\Repositories\RepositoryInterface;
+use App\Services\Messages\Responses\MessageVirtual;
 use App\Services\Screeners\UserScreener;
 use Illuminate\Database\Eloquent\Collection;
 
 class MessageService
 {
-    public function __construct(private MessageRepository $repository, private array $screens)
+    public function __construct(private RepositoryInterface $repository, private array $screens)
     {
     }
 
-    public function getMessages(int $roomId, int $userId): string|array
+    public function getMessages(int $roomId, int $userId): string|\Illuminate\Support\Collection
     {
         foreach($this->screens as $screen) {
             if ($screen->screen($roomId, $userId)) {
@@ -26,16 +29,20 @@ class MessageService
         $relationship = $this->repository->getRelationship($roomId, $userId);
         $this->repository->updateRelationship($relationship, 0);
 
-        $rawMessages = $this->repository->getRoomMessages($roomId)->toArray();
-        $messagesWithVirtualData = [];
+        $rawMessages = $this->repository->getRoomSubjects($roomId);
 
+        $response = collect([]);
         foreach ($rawMessages as $message)
         {
-            $message['canEdit'] = $userId === $message['user_id'] ? 1 : 0;
-            $messagesWithVirtualData[] = $message;
+            $messageVirtual = new MessageVirtual($message);
+            $messageVirtual->setCanEdit($userId === $message['user_id'] ? 1 : 0);
+            $messageVirtual->setUserName(
+                User::where('id', $messageVirtual->getUserId())->get()->first()->name
+            );
+            $response->push($messageVirtual);
         }
 
-        return $messagesWithVirtualData;
+        return $response;
     }
 
     public function createMessage(
@@ -58,26 +65,26 @@ class MessageService
             $this->repository->updateRelationship($relationship, $unreadCount + 1);
         }
 
-        return $this->repository->createMessage($roomId, $userId, $message);
+        return $this->repository->create($roomId, $userId, $message);
     }
 
     public function updateMessage(
         int $messageId,
-        int $roomId,
-        int $userId,
         int $authId,
         string $message
     ): string|ChatMessage
     {
+        $chatMessage = $this->repository->get($messageId);
+
         foreach($this->screens as $screen) {
-            if ($screen instanceof UserScreener && $screen->screen($authId, $userId)) {
+            if ($screen instanceof UserScreener && $screen->screen($authId, $chatMessage->user_id)) {
                 return $screen->message();
-            } else if ($screen->screen($roomId, $authId)) {
+            } else if ($screen->screen($chatMessage->chat_room_id, $authId)) {
                 return $screen->message();
             }
         }
 
-        return $this->repository->updateMessage($messageId, $message);
+        return $this->repository->update($messageId, $message);
     }
 
 }

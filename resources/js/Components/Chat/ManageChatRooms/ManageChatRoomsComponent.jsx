@@ -3,7 +3,7 @@ import {AddUserToChatRoom} from "@/Components/Chat/ManageChatRooms/AddUserToChat
 import {UserCard} from "@/Components/Chat/ManageChatRooms/UserCard";
 
 export const ManageChatRoomsComponent = (props) => {
-    let room = props.chatRooms.filter((x) => x.is_mod === 1)[0];
+    let room = props.chatRooms.filter((x) => x.isModerator === 1)[0];
     if (!room){
         room = null
     }
@@ -55,7 +55,7 @@ export const ManageChatRoomsComponent = (props) => {
                 <div className="flex flex-col w-1/2 h-60 overflow-scroll">
                     {
                         props.chatRooms.map((room) => {
-                            if (room.is_private === 0 && room.is_mod === 1 && editedRoom) {
+                            if (room.isPrivate === 0 && room.isModerator === 1 && editedRoom) {
                                 return (
                                     <div
                                         className="m-1 p-1 text-center"
@@ -81,7 +81,7 @@ export const ManageChatRoomsComponent = (props) => {
                 <div className="flex flex-col w-1/2 h-60 overflow-scroll">
                     {
                         props.chatRooms.map((room) => {
-                            if (room.is_private === 1 && room.is_mod === 1 && editedRoom) {
+                            if (room.isPrivate === 1 && room.isModerator === 1 && editedRoom) {
                                 return (
                                     <div
                                         className="m-1 p-1 text-center"
@@ -107,7 +107,7 @@ export const ManageChatRoomsComponent = (props) => {
             <div className="w-full flex flex-row mt-4">
                 <div className="w-1/2">
                     <p><strong>Name:</strong> {editedRoom ? editedRoom.name : null}</p>
-                    <p><strong>Public/private:</strong> {editedRoom && editedRoom.is_private ? "Private" : "Public"}</p>
+                    <p><strong>Public/private:</strong> {editedRoom && editedRoom.isPrivate ? "Private" : "Public"}</p>
                     <p><strong>Users:</strong></p>
                     <div className="w-full h-60 overflow-scroll">
                     {

@@ -14,8 +14,8 @@ export const ChatRoomBox = (props) => {
             }}
         >
             <span>{props.chatRoom.name} {
-                props.chatRoom.unread_messages > 0
-                ? <span className="bg-amber-300 px-1 rounded-2xl">{props.chatRoom.unread_messages}</span>
+                props.chatRoom.unreadMessageCount > 0
+                ? <span className="bg-amber-300 px-1 rounded-2xl">{props.chatRoom.unreadMessageCount}</span>
                 : null
             }</span>
         </div>

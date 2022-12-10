@@ -5,6 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $is_banned
+ * @property int $is_muted
+ * @property int $is_mod
+ * @property int $unread_count
+ */
 class RoomUserRelationship extends Model
 {
     use HasFactory;

@@ -14,13 +14,13 @@ export const ChatRoomSelection = (props) => {
                 {
                     props.chatRooms &&
                     props.chatRooms.map((room) =>
-                        room.is_banned
+                        room.isBanned
                             ? null
                             : (
                                 <ChatRoomBox
                                     key={room.id}
                                     chatRoom={room}
-                                    selected={props.currentChatRoom.id == room.id ? true : false}
+                                    selected={props.currentChatRoom.id === room.id}
                                     setChatRoom={props.setChatRoom}
                                     setRerender={props.setRerender}
                                 />

@@ -4,41 +4,45 @@ declare(strict_types=1);
 
 namespace App\Services\ChatRooms;
 
+use App\Events\ChatRoomsUpdated;
 use App\Models\ChatRoom;
 use App\Models\RoomUserRelationship;
+use App\Models\User;
 use App\Repositories\ChatRoom\ChatRoomRepository;
+use App\Repositories\RepositoryInterface;
+use App\Services\ChatRooms\Responses\ChatRoomVirtual;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class ChatRoomService
 {
     public function __construct(
-        private ChatRoomRepository $repository,
+        private RepositoryInterface $repository,
         private array $screens
     )
     {
     }
 
-    public function getRooms($userId): array
+    public function getRooms($userId): Collection
     {
-        $roomIds = $this->repository->getRoomIdsByUserId($userId);
-        $rooms = ChatRoom::all()->filter();
-        // collection galima filtruoti, nebutinai su array
-        $filteredRooms = array_values(array_filter($rooms, function ($room) use ($roomIds) {
-            return in_array($room['id'], $roomIds);
-        }));
+        $roomIds = RoomUserRelationship::where('user_id', $userId)
+            ->pluck('room_id')->toArray();
+        $rooms = ChatRoom::all()->filter(function ($room) use ($roomIds) {
+            return in_array($room->id, $roomIds);
+        });
 
-        // add virtual values to returned resources
-        $returnedRooms = [];
-        foreach ($filteredRooms as $room) {
-            $relationship = $this->repository->getSingleRelationship($room['id'], $userId);
-            $room['is_banned'] = $relationship->is_banned;
-            $room['is_muted'] = $relationship->is_muted;
-            $room['is_mod'] = $relationship->is_mod;
-            $room['unread_messages'] = $relationship->unread_count;
-            $returnedRooms[] = $room;
+        $roomsResponse = collect([]);
+        foreach ($rooms as $room) {
+            $roomVirtual = new ChatRoomVirtual($room);
+            $relationship = $this->repository->getRelationship($room['id'], $userId);
+            $roomVirtual->setIsBanned($relationship->is_banned);
+            $roomVirtual->setIsMuted($relationship->is_muted);
+            $roomVirtual->setIsModerator($relationship->is_mod);
+            $roomVirtual->setUnreadMessageCount($relationship->unread_count);
+            $roomsResponse->push($roomVirtual);
         }
 
-        return $returnedRooms;
+        return $roomsResponse;
     }
 
     public function createNewChatRoom(
@@ -47,7 +51,7 @@ class ChatRoomService
         int $userId
     ): ChatRoom
     {
-        $room = $this->repository->createRoom($roomName, $isPrivate);
+        $room = $this->repository->create(name: $roomName, isPrivate: $isPrivate);
 
         // create user-room relationships
         if ($isPrivate)
@@ -55,7 +59,7 @@ class ChatRoomService
             $this->repository->createRelationship($room->id, $userId, 1);
         } else
         {
-            $users = $this->repository->getAllUsers();
+            $users = User::all();
             foreach($users as $user)
             {
                 $this->repository->createRelationship(
@@ -69,18 +73,17 @@ class ChatRoomService
         return $room;
     }
 
-    public function getUsersByRoomId(int $roomId): array
+    public function getUsersByRoomId(int $roomId): Collection
     {
-        $userIds = $this->repository->getRoomUserIds($roomId)->toArray();
-        $allUsers = $this->repository->getAllUsers()->toArray();
-
-        $returnArray = [];
-        $returnArray['users'] = array_values(array_filter($allUsers, function($user) use ($userIds) {
+        $userIds = $this->repository->getRoomSubjects($roomId)->toArray();
+        $users = User::all()->filter(function ($user) use ($userIds) {
             return in_array($user['id'], $userIds);
-        }));
-        $returnArray['relationships'] = $this->repository->getRelationshipsByRoomId($roomId)->toArray();
+        });
 
-        return $returnArray;
+        return collect([
+            'users' => $users,
+            'relationships' => $this->repository->getRoomRelationships($roomId)
+        ]);
     }
 
     public function addUserToChatRoom(int $roomId, int $userId): string
@@ -93,19 +96,20 @@ class ChatRoomService
             }
         }
 
-        $room = $this->repository->getChatRoomById($roomId);
+        $room = $this->repository->get($roomId);
 
         if ($room->is_private)
         {
-            if ($this->repository->getSingleRelationship($roomId, $userId) === null)
+            if ($this->repository->getRelationship($roomId, $userId) === null)
             {
                 $this->repository->createRelationship($roomId, $userId, 0);
             }
-
+            ChatRoomsUpdated::dispatch();
             return "Added or already exists.";
         }
         else
         {
+            ChatRoomsUpdated::dispatch();
             return "Room is public, cannot add users.";
         }
     }
@@ -125,8 +129,9 @@ class ChatRoomService
             }
         }
 
-        $relationship = $this->repository->getSingleRelationship($roomId, $userId);
-        $this->repository->updateRelationship($relationship, $mute, $ban, $relationship->unread_count);
+        $relationship = $this->repository->getRelationship($roomId, $userId);
+        $this->repository->updateRelationship(relationship: $relationship, unreadCount: $relationship->unread_count, mute: $mute, ban: $ban);
+        ChatRoomsUpdated::dispatch();
 
         return $relationship;
     }
