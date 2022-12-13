@@ -1,28 +1,4 @@
 # Documentation
-## App\Servives\ChatRooms\Responses\ChatRoomVirtual
-### Fields
-```
-private int $id;
-private string $name;
-private int $isPrivate;
-private int $isBanned;
-private int $isMuted;
-private int $isModerator;
-private int $unreadMessageCount;
-```
-includes setters and getters
-### ChatRoomVirtual::__construct
-```
-public function __construct(ChatRoom $room)
-```
-#### Description
-Creates an instance of `App\Services\ChatRooms\Responses\ChatRoomVirtual`
-#### Parameters
-+ `ChatRoom` chat room model object
-#### Returns
-An instance of `ChatRoomVirtual`
-
-<hr/>
 
 ## App\Services\ChatRooms\ChatRoomService
 
@@ -139,7 +115,7 @@ An instance of `MessageService`
 
 ### MessageService::getMessages
 ```
-public function getMessages(int $roomId, int $userId): string|array
+public function getMessages(int $roomId, int $userId): string|Collection
 ```
 #### Description
 Retrieves all messages in a chat room by given chat room ID.
@@ -148,7 +124,7 @@ Retrieves all messages in a chat room by given chat room ID.
 + `int` ID of the authenticated user making the request through API (can be acquired by Laravel's `Auth::id()`)
 #### Returns
 + `string` is returned if one of the `ScreenInterface` objects passed through constructor denies access to the request. Returned value is the resulting error message of the `ScreenInterface` object. For example, if a user, banned in this particular chat room, requests to get messages from this chat room they will see `User is banned in this chat room` message returned.
-+ `MessageVirtual` instance
++ An `Illuminate\Support\Collection` of `MessageVirtual` instances
 <hr/>
 
 ### MessageService::createMessage
@@ -179,3 +155,100 @@ Updates an existing message given by messageID.
 #### Returns
 + `string` is returned if one of the `ScreenInterface` objects passed through constructor denies access to the request. Returned value is the resulting error message of the `ScreenInterface` object. For example, if a user who is different from the user that created the message attempts to post a message in this chat room they will see `Message does not belong to this user` message returned (in this case, message will not be updated).
 + `ChatMessage` instance of the updated message
+
+<hr/>
+
+## App\Servives\ChatRooms\Responses\ChatRoomVirtual
+### Fields
+```
+private int $id;
+private string $name;
+private int $isPrivate;
+private int $isBanned;
+private int $isMuted;
+private int $isModerator;
+private int $unreadMessageCount;
+```
+Includes getters and setters.
+### ChatRoomVirtual::__construct
+```
+public function __construct(ChatRoom $room)
+```
+#### Description
+Creates an instance of `App\Services\ChatRooms\Responses\ChatRoomVirtual`
+#### Parameters
++ `ChatRoom` chat room model object
+#### Returns
+An instance of `ChatRoomVirtual`
+
+<hr/>
+
+## App\Servives\ChatRooms\Responses\MessageVirtual
+### Fields
+```
+private int $id;
+private int $chatRoomId;
+private int $userId;
+private string $userName;
+private string $message;
+private int $canEdit;
+```
+Includes getters and setters.
+### MessageVirtual::__construct
+```
+public function __construct(ChatMessage $msg)
+```
+#### Description
+Creates an instance of `App\Services\ChatRooms\Responses\MessageVirtual`
+#### Parameters
++ `ChatMessage` message model object
+#### Returns
+An instance of `MessageVirtual`
+
+<hr/>
+
+## App\Models\ChatMessage
+Extends `Illuminate\Database\Eloquent\Model`.
+### Properties
++ `int` id
++ `int` chat_room_id
++ `int` user_id
++ `string` message
++ timestamps
+
+<hr/>
+
+## App\Models\ChatRoom
+Extends `Illuminate\Database\Eloquent\Model`.
+### Properties
++ `int` id
++ `string` name
++ `int` is_private
++ timestamps
+
+<hr/>
+
+## App\Models\RoomUserRelationship
+Extends `Illuminate\Database\Eloquent\Model`.
+### Properties
++ `int` id
++ `int` room_id
++ `int` user_id
++ `int` is_muted
++ `int` is_banned
++ `int` is_mod
++ `int` unread_count
++ timestamps
+
+<hr/>
+
+## App\Models\User
+Extends `Illuminate\Database\Eloquent\Model`.
+### Properties
++ `int` id
++ `string` name
++ `string` email
++ `string` password
++ timestamps
+
+<hr/>
