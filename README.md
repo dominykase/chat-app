@@ -1,4 +1,29 @@
 # Documentation
+## App\Servives\ChatRooms\Responses\ChatRoomVirtual
+### Fields
+```
+private int $id;
+private string $name;
+private int $isPrivate;
+private int $isBanned;
+private int $isMuted;
+private int $isModerator;
+private int $unreadMessageCount;
+```
+includes setters and getters
+### ChatRoomVirtual::__construct
+```
+public function __construct(ChatRoom $room)
+```
+#### Description
+Creates an instance of `App\Services\ChatRooms\Responses\ChatRoomVirtual`
+#### Parameters
++ `ChatRoom` chat room model object
+#### Returns
+An instance of `ChatRoomVirtual`
+
+<hr/>
+
 ## App\Services\ChatRooms\ChatRoomService
 
 ### ChatRoomService::__construct
