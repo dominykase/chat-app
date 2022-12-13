@@ -1,4 +1,102 @@
 # Documentation
+## App\Services\ChatRooms\ChatRoomService
+
+### ChatRoomService::__construct
+```
+public function __construct(
+        private RepositoryInterface $repository,
+        private array $screens
+    )
+```
+#### Description
+Creates and returns an instance of `App\Services\ChatRooms\ChatRoomService`
+#### Parameters
++ a `RepositoryInterface` instance (persistence layer)
++ an array of `ScreenInterface` objects
+#### Returns
+An instance of `ChatRoomService`
+<hr/>
+
+### ChatRoomService::getRooms
+```
+public function getRooms($userId): Collection
+```
+#### Description
+Retrieves all the rooms that the user specified by `$userId` belongs to.
+#### Parameters
++ `int` ID of the user
+#### Returns
+An `Illuminate\Support\Collection` of `ChatRoomVirtual` objects.
+<hr/>
+
+### ChatRoomService::createNewChatRoom
+```
+public function createNewChatRoom(
+    string $roomName,
+    int $isPrivate,
+    int $userId
+): ChatRoom
+```
+#### Description
+Creates a new chat room and creates the appropriate relationships to users.
+#### Parameters
++ `string` chat room name
++ `int` 1 or 0 whether chat room is to be private or not
++ `int` ID of the user creating the chat room (moderator)
+#### Returns
+Newly created `ChatRoom` object.
+<hr/>
+
+### ChatRoomService::getUsersByRoomId
+```
+public function getUsersByRoomId(int $roomId): Collection
+```
+#### Description
+Retrieves all users (and the corresponding relationships) that belong to the chat room specified by chat room ID.
+#### Parameters
++ `int` chat room ID
+#### Returns
+An `Illuminate\Support\Collection` in which:
++ 'users' key refers to an `Illuminate\Database\Eloquent\Collection` of `User` objects
++ 'relationships' key refers to an `Illuminate\Database\Eloquent\Collection` of `RoomUserRelationship` objects that correspond to this room
+<hr/>
+
+### ChatRoomService::addUserToChatRoom
+```
+public function addUserToChatRoom(int $roomId, int $userId): string
+```
+#### Description
+Adds the user specified by ID to the room specified by room ID.
+#### Parameters
++ `int` room ID
++ `int` user ID
+#### Returns
++ `string` if `ScreenInterface` object detects that the user making the request does not have the required privileges. For example, if the user attempting to add another user to a chat room is not a moderator, the method returns `User is not a moderator of this chat room` message.
++ `string` `Added of already exists` if user is successfully added to the room or already exists in it.
++ `string` `Room is public, cannot add users` if the room is public and therefore all users belong to it.
+<hr/>
+
+### ChatRoomService::updateRoomUserStatus
+```
+public function updateRoomUserStatus(
+    int $roomId,
+    int $userId,
+    int $mute,
+    int $ban
+): RoomUserRelationship
+```
+#### Description
+Updates user room relationship, i.e. (un)mutes and/or (un)bans the user in specified chat room.
+#### Parameters
++ `int` room ID
++ `int` user ID
++ `int` 1 or 0 whether user is to be muted or not
++ `int` 1 or 0 whether user is to be banned or not
+#### Returns
+The result of the modified `RoomUserRelationship` object.
+
+<hr/>
+
 ## App\Services\Messages\MessageService
 
 ### MessageService::__construct
@@ -8,7 +106,7 @@ public function __construct(private MessageRepository $repository, private array
 #### Description
 Creates and returns an instance of `App\Services\Messages\MessageService`
 #### Parameters
-+ a `MessageRepository` instance (persistence layer)
++ a `RepositoryInterface` instance (persistence layer)
 + an array of `ScreenInterface` objects
 #### Returns
 An instance of `MessageService`
