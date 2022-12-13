@@ -163,8 +163,16 @@ Updates an existing message given by messageID.
 + `int` ID of authenticated user making the request
 + `string` new message body
 #### Returns
-+ `string` is returned if one of the `ScreenInterface` objects passed through constructor denies access to the request. Returned value is the resulting error message of the `ScreenInterface` object. For example, if a user who is different from the user that created the message attempts to post a message in this chat room they will see `Message does not belong to this user` message returned (in this case, message will not be updated).
++ `string` is returned if one of the `ScreenerInterface` objects passed through constructor denies access to the request. Returned value is the resulting error message of the `ScreenerInterface` object. For example, if a user who is different from the user that created the message attempts to post a message in this chat room they will see `Message does not belong to this user` message returned (in this case, message will not be updated).
 + `ChatMessage` instance of the updated message
+
+<hr/>
+## App\Services\Screeners\BanScreener
+Implements `ScreenerInterface`.
+### BanScreener::screen
+```
+public function screen(int $roomId, int $userId): bool
+```
 
 <hr/>
 
