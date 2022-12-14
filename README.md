@@ -6,7 +6,7 @@ This is a chat application written using Laravel and React. For WebSocket the ap
 + set up .env file with database credentials as well as Pusher App credentials (see pusher.com). This app uses private (authenticated) Pusher channels for messaging so make sure to select this option in your Pusher app configuration.
 + run `php artisan migrate` and `php artisan db:seed`
 + to start the app, open two consoles and run `php artisan serve` in one and `npm run dev` in another
-+ to run the tests run `php artisan test`, yet keep in mind that this resets the current database. You could setup a testing database and use `php artisan cache:config --env=<environment_name>` to switch between local and testing environments
++ to run the tests run `php artisan test`, yet keep in mind that this resets the current database. You could setup a testing database and use `php artisan config:cache --env=<environment_name>` to switch between local and testing environments
 
 # Documentation
 
