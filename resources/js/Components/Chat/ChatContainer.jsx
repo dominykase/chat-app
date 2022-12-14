@@ -12,8 +12,26 @@ export class ChatContainer extends Component {
         this.state = {
             messages: [],
             editMessage: false,
-            editedMessage: undefined
+            editedMessage: undefined,
+            sendTypingRequests: true,
         }
+    }
+
+    sendUserIsTypingRequest = () => {
+        if (!this.state.sendTypingRequests)
+            return;
+
+        this.setState({sendTypingRequests:false});
+        setTimeout(() => {
+            this.setState({sendTypingRequests: true});
+        }, 5000);
+
+        axios({
+            method: "post",
+            url: `http://localhost:8000/chat/room/${this.props.currentChatRoom.id}/typing`
+        }).then(response => {
+            console.log(response.data);
+        });
     }
 
     getMessages = () => {
@@ -40,6 +58,7 @@ export class ChatContainer extends Component {
 
         document.addEventListener('messagesent', () => {
             this.props.setRerender(true);
+            console.log('messagesent caught');
             this.getMessages();
         });
 
@@ -55,6 +74,15 @@ export class ChatContainer extends Component {
                     messages={this.state.messages}
                     toggleEditMessage={this.toggleEditMessage.bind(this)}
                 />
+                <div id="user-is-typing-container">
+                    {
+                        this.props.typingUsers.map((userName) => {
+                            return (
+                                <p key={userName}>{userName} is typing...</p>
+                            );
+                        })
+                    }
+                </div>
                 {
                     this.props.currentChatRoom.isMuted
                         ? <MutedComponent />
@@ -63,8 +91,12 @@ export class ChatContainer extends Component {
                                 message={this.state.editedMessage}
                                 toggleEditMessage={this.toggleEditMessage.bind(this)}
                                 currentChatRoom={this.props.currentChatRoom}
+                                sendUserIsTypingRequest={this.sendUserIsTypingRequest.bind(this)}
                             />
-                            : <MessageInput currentChatRoom={this.props.currentChatRoom}/>
+                            : <MessageInput
+                                currentChatRoom={this.props.currentChatRoom}
+                                sendUserIsTypingRequest={this.sendUserIsTypingRequest.bind(this)}
+                            />
                 }
             </div>
         );

@@ -10,6 +10,7 @@ export const EditMessage = (props) => {
             props.toggleEditMessage(undefined);
         }
         setInputValue(e.target.value);
+        props.sendUserIsTypingRequest();
     }
 
     const handleEnter = (e) => {

@@ -13,7 +13,9 @@ export default class ChatPage extends Component {
             createChatRoomView: false,
             manageChatRooms: false,
             currentChatRoom: {id: undefined},
-            rerender: true
+            prevChatRoom: {id: undefined},
+            rerender: true,
+            typingUsers: []
         }
 
         window.Echo.channel("chatroomfeed")
@@ -43,6 +45,7 @@ export default class ChatPage extends Component {
                     currentChatRoom: displayedRooms[0],
                     rerender: true
                 })
+
             })
     }
 
@@ -62,8 +65,17 @@ export default class ChatPage extends Component {
     connect = () => {
         window.Echo.private("chat." + this.state.currentChatRoom.id)
             .listen('.message.new', e => {
+                console.log(".message.new");
                 const event = new Event('messagesent');
                 document.dispatchEvent(event);
+            })
+            .listen('.user.typing', e => {
+                if (this.state.typingUsers.length === 0) {
+                    this.setState({typingUsers: [e.userName]});
+                    setTimeout(() => {
+                        this.setState({typingUsers: []});
+                    }, 5000);
+                }
             });
     }
 
@@ -72,20 +84,27 @@ export default class ChatPage extends Component {
     }
 
     updateChatRoom = (room) => {
-        this.setState({currentChatRoom: room})
+        this.setState((prevState) => {
+            return {
+                prevChatRoom: prevState.currentChatRoom,
+                currentChatRoom: room
+            };
+        })
     }
 
     componentDidMount() {
         this.getChatRooms();
+        document.dispatchEvent(new Event('chatroomchanged'));
 
         document.addEventListener('chatroomcreated', () => {this.getChatRooms()});
+        document.addEventListener('chatroomchanged', () => {
+            this.disconnect(this.state.prevChatRoom);
+            this.connect();
+        })
     }
 
     componentDidUpdate(prevProps, prevState) {
         document.dispatchEvent(new Event('chatroomchanged'));
-
-        this.disconnect(prevState.currentChatRoom);
-        this.connect();
     }
 
     setRerender(toggle) {
@@ -93,6 +112,7 @@ export default class ChatPage extends Component {
     }
 
     render() {
+        console.log({prev: this.state.prevChatRoom.id, now: this.state.currentChatRoom.id});
         return (
             <div className="w-full h-full flex flex-row">
                 <ChatRoomSelection
@@ -120,6 +140,7 @@ export default class ChatPage extends Component {
                             currentChatRoom={this.state.currentChatRoom}
                             rerender={this.state.rerender}
                             setRerender={this.setRerender.bind(this)}
+                            typingUsers={this.state.typingUsers}
                         />
 
                 }

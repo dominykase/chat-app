@@ -79,4 +79,12 @@ class ChatController extends Controller
 
         return $message;
     }
+
+    public function typingEntry($roomId): JsonResponse
+    {
+        $service = new MessageService($this->messageRepository, []);
+        $service->dispatchUserIsTyping($roomId, Auth::id());
+
+        return response()->json("success");
+    }
 }

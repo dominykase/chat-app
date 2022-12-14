@@ -11,6 +11,8 @@ export const ChatRoomBox = (props) => {
             onClick={() => {
                 props.setRerender(true);
                 props.setChatRoom(props.chatRoom);
+                const event = new Event('chatroomchanged');
+                document.dispatchEvent(event);
             }}
         >
             <span>{props.chatRoom.name} {

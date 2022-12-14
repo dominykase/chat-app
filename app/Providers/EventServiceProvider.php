@@ -23,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\ChatRoomsUpdated' => [
             'App\Listeners\SendUpdateRoomFeedNotification'
+        ],
+        'App\Events\UserIsTyping' => [
+            'App\Listeners\SendUserIsTypingNotification'
         ]
     ];
 

@@ -7,6 +7,7 @@ export const MessageInput = (props) => {
 
     const handleChange = (e) => {
         setInputValue(e.target.value);
+        props.sendUserIsTypingRequest();
     }
 
     const handleEnter = (e) => {

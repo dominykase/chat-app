@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Messages;
 
+use App\Events\UserIsTyping;
 use App\Models\ChatMessage;
 use App\Models\User;
 use App\Repositories\Messages\MessageRepository;
@@ -79,12 +80,18 @@ class MessageService
         foreach($this->screens as $screen) {
             if ($screen instanceof UserScreener && $screen->screen($authId, $chatMessage->user_id)) {
                 return $screen->message();
-            } else if ($screen->screen($chatMessage->chat_room_id, $authId)) {
+            } else if (!($screen instanceof UserScreener) && $screen->screen($chatMessage->chat_room_id, $authId)) {
                 return $screen->message();
             }
         }
 
         return $this->repository->update($messageId, $message);
+    }
+
+    public function dispatchUserIsTyping(int $roomId, int $userId): void
+    {
+        $user = User::where('id', $userId)->get()->first();
+        broadcast(new UserIsTyping($user->name, $roomId))->toOthers();
     }
 
 }
