@@ -169,12 +169,66 @@ Updates an existing message given by messageID.
 + `ChatMessage` instance of the updated message
 
 <hr/>
+
 ## App\Services\Screeners\BanScreener
 Implements `ScreenerInterface`.
 ### BanScreener::screen
 ```
 public function screen(int $roomId, int $userId): bool
 ```
+#### Description
+Checks if the user is banned in this chat room.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
+#### Returns
+`true` if the user is banned.
+
+<hr/>
+
+## App\Services\Screeners\ModeratorScreener
+Implements `ScreenerInterface`.
+### ModeratorScreener::screen
+```
+public function screen(int $roomId, int $userId): bool
+```
+#### Description
+Checks if the user is not a moderator of this chat room.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
+#### Returns
+`true` if user is not a moderator of this chat room.
+
+<hr/>
+
+## App\Services\Screeners\MuteScreener
+### MuteScreener::screen
+```
+public function screen(int $roomId, int $userId): bool
+```
+#### Description
+Checks if the user is muted in this chat room.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
+#### Returns
+`true` if the user is muted.
+
+<hr/>
+
+## App\Services\Screeners\UserScreener
+### UserScreener::screen
+```
+public function screen(int $authId, int $userId): bool
+```
+#### Description
+Checks if the user making the request is the same as the user specified in the request.
+#### Parameters
++ `int` authenticated user's ID
++ `int` user's ID specified in the request
+#### Returns
+`true` if the provided IDs do not match.
 
 <hr/>
 
