@@ -10,7 +10,7 @@ This is a chat application written using Laravel and React. For WebSocket the ap
 
 # Documentation
 
-![plot](./chatapp_sequence_diagram .png)
+![plot](./chatapp_sequence_diagram.png)
 
 ## App\Services\ChatRooms\ChatRoomService
 
