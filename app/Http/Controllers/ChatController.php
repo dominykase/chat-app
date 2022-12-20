@@ -49,12 +49,6 @@ class ChatController extends Controller
 
         $message = $service->createMessage($roomId, Auth::id(), $request->message);
 
-        if ($message instanceof ChatMessage)
-        {
-            NewChatMessage::dispatch($message);
-            ChatRoomsUpdated::dispatch();
-        }
-
         return response()->json($message);
     }
 
@@ -71,11 +65,6 @@ class ChatController extends Controller
             Auth::id(),
             $request->message
         );
-
-        if ($message instanceof ChatMessage)
-        {
-            NewChatMessage::dispatch($message);
-        }
 
         return $message;
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Messages;
 
+use App\Events\ChatRoomsUpdated;
+use App\Events\NewChatMessage;
 use App\Events\UserIsTyping;
 use App\Models\ChatMessage;
 use App\Models\User;
@@ -66,7 +68,12 @@ class MessageService
             $this->repository->updateRelationship($relationship, $unreadCount + 1);
         }
 
-        return $this->repository->create($roomId, $userId, $message);
+        $message = $this->repository->create($roomId, $userId, $message);
+
+        NewChatMessage::dispatch($message);
+        ChatRoomsUpdated::dispatch();
+
+        return $message;
     }
 
     public function updateMessage(
@@ -84,6 +91,8 @@ class MessageService
                 return $screen->message();
             }
         }
+
+        NewChatMessage::dispatch($chatMessage);
 
         return $this->repository->update($messageId, $message);
     }
