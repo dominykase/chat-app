@@ -10,6 +10,8 @@ This is a chat application written using Laravel and React. For WebSocket the ap
 
 # Documentation
 
+![plot](./chatapp_sequence_diagram.png)
+
 ## App\Services\ChatRooms\ChatRoomService
 
 ### ChatRoomService::__construct
@@ -167,12 +169,289 @@ Updates an existing message given by messageID.
 + `ChatMessage` instance of the updated message
 
 <hr/>
+
+## App\Repositories\ChatRoom\ChatRoomRepository
+Implements `RepositoryInterface`.
+### ChatRoomRepository::create
+```
+public function create(
+    ?int $roomId = null,
+    ?int $userId = null,
+    ?string $message = null,
+    ?string $name = null,
+    ?int $isPrivate = null
+): ChatMessage|ChatRoom
+```
+#### Description
+Creates a new chat room in the database.
+#### Parameters
++ `string` name of the room
++ `int` 1 or 0 whether room is private or not
+#### Returns
+A newly created instance of `ChatRoom`
+
+<hr/>
+
+### ChatRoomRepository::createRelationship
+```
+public function createRelationship(int $roomId, int $userId, int $isMod): RoomUserRelationship
+```
+#### Description
+Creates a `RoomUserRelationship` in the database.
+#### Parameters
++ `int`chat room ID
++ `int` user ID
++ `int` 1 or 0 for whether user is moderator or not
+#### Returns 
+A newly created `RoomUserRelationship` instance.
+
+<hr/>
+
+### ChatRoomRepository::getRoomSubjects
+```
+public function getRoomSubjects(int $roomId): \Illuminate\Support\Collection
+```
+#### Description
+Gets the IDs of all users that belong in this chat room.
+#### Parameters
++ `int` chat room ID
+#### Returns
+`Illuminate\Support\Collection` of user IDs (integers).
+
+<hr/>
+
+### ChatRoomRepository::getRoomRelationships
+```
+public function getRoomRelationships(int $roomId): Collection
+```
+#### Description
+Gets all of the `RoomUserRelationship` objects that relate to this chat room.
+#### Parameters
++ `int` chat room ID
+#### Returns
+`Illuminate\Database\Eloquent\Collection` of `RoomUserRelationship` objects.
+
+<hr/>
+
+### ChatRoomRepository::get
+```
+public function get(int $id): ChatRoom
+```
+#### Description
+Retrieves the chat room by given ID.
+#### Parameters
++ `int` chat room ID
+#### Returns
+`ChatRoom` object
+
+<hr/>
+
+### ChatRoomRepository::getRelationship
+```
+public function getRelationship(int $roomId, int $userId): null|RoomUserRelationship
+```
+#### Description
+Get the `RoomUserRelationship` by given room and user IDs.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
+#### Returns
++ `RoomUserRelationship` object if found
++ `null` if relationship does not exist
+
+<hr/>
+
+### ChatRoomRepository::updateRelationship
+```
+public function updateRelationship(
+    ?RoomUserRelationship &$relationship,
+    ?int $unreadCount,
+    ?int $mute = null,
+    ?int $ban = null
+): void
+```
+#### Description
+Updates `RoomUserRelationship` in the database based on provided values.
+#### Parameters
++ `RoomUserRelationship` passed by reference
++ `int` unread message count
++ `int` 1 or 0 for whether mute the user or not
++ `int` 1 or 0 for whether ban the user or not
+#### Returns 
+Nothing. `RoomUserRelationship` is passed by reference.
+
+<hr/>
+
+## App\Repositories\Messages\MessageRepository
+
+### MessageRepository::create
+```
+public function create(
+    ?int $roomId = null,
+    ?int $userId = null,
+    ?string $message = null,
+    ?string $name = null,
+    ?int $isPrivate = null
+): ChatMessage|ChatRoom
+```
+#### Description
+Creates a new chat message in the database.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
++ `string` message content
+#### Returns
+Newly created `ChatMessage` object.
+
+<hr/>
+
+### MessageRepository::getRoomSubjects
+```
+public function getRoomSubjects(int $roomId): Collection
+```
+#### Description
+Retrieves chat room messages in descending order by 'created_at' timestamp.
+#### Parameters
++ `int` chat room ID
+#### Returns
+`Illuminate\Database\Eloquent\Collection` of `ChatMessage` objects.
+
+<hr/>
+
+### MessageRepository::get
+```
+public function get(int $id): ChatMessage
+```
+#### Description
+Retrieves a single chat message by ID.
+#### Parameters
++ `int` message ID
+#### Returns 
+`ChatMessage` object.
+
+<hr/>
+
+### MessageRepository::update
+```
+public function update(int $id, string $message): ChatMessage
+```
+#### Description
+Updates a message with new content.
+#### Parameters
++ `int` message ID
++ `string` new message content
+#### Returns
+Newly updated `ChatMessage` object.
+
+<hr/>
+
+### MessageRepository::getRoomRelationships
+```
+public function getRoomRelationships(int $roomId): Collection
+```
+#### Description
+Gets all the `RoomUserRelationship` objects related to the specified chat room.
+#### Parameters
++ `int` chat room ID
+#### Returns
+`Illuminate\Database\Eloquent\Collection` of `RoomUserRelationship` objects.
+
+<hr/>
+
+### MessageRepository::getRelationship
+```
+public function getRelationship(int $roomId, int $userId): RoomUserRelationship
+```
+#### Description
+Retrieves a single `RoomUserRelationship` from the database.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
+#### Returns
+`RoomUserRelationship` instance.
+
+<hr/>
+
+### MessageRepository::updateRelationship
+```
+public function updateRelationship(
+    RoomUserRelationship &$relationship,
+    int $unreadCount,
+    int $mute = null,
+    int $ban = null
+): void
+```
+#### Description
+Updates `RoomUserRelationship` unread message count.
+#### Parameters
++ `RoomUserRelationship` passed by reference
++ `int` new unread message count
+#### Returns
+Nothing. `RoomUserRelationship` is passed in by reference.
+
+<hr/>
+
 ## App\Services\Screeners\BanScreener
 Implements `ScreenerInterface`.
 ### BanScreener::screen
 ```
 public function screen(int $roomId, int $userId): bool
 ```
+#### Description
+Checks if the user is banned in this chat room.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
+#### Returns
+`true` if the user is banned.
+
+<hr/>
+
+## App\Services\Screeners\ModeratorScreener
+Implements `ScreenerInterface`.
+### ModeratorScreener::screen
+```
+public function screen(int $roomId, int $userId): bool
+```
+#### Description
+Checks if the user is not a moderator of this chat room.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
+#### Returns
+`true` if user is not a moderator of this chat room.
+
+<hr/>
+
+## App\Services\Screeners\MuteScreener
+Implements `ScreenerInterface`.
+### MuteScreener::screen
+```
+public function screen(int $roomId, int $userId): bool
+```
+#### Description
+Checks if the user is muted in this chat room.
+#### Parameters
++ `int` chat room ID
++ `int` user ID
+#### Returns
+`true` if the user is muted.
+
+<hr/>
+
+## App\Services\Screeners\UserScreener
+Implements `ScreenerInterface`.
+### UserScreener::screen
+```
+public function screen(int $authId, int $userId): bool
+```
+#### Description
+Checks if the user making the request is the same as the user specified in the request.
+#### Parameters
++ `int` authenticated user's ID
++ `int` user's ID specified in the request
+#### Returns
+`true` if the provided IDs do not match.
 
 <hr/>
 
